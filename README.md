@@ -16,33 +16,33 @@
 ## 5. 주요기능
 1. 원하는 기간을 입력하면 그 기간 내의 '대나무숲' 게시글을 검색하여 리스트로 보여준다.
 2. 리스트의 게시글을 올라온 시간 순서대로, 좋아요 및 공감 수 순서대로, 주제별로 정렬할 수 있다.
-3. '대나무숲' 게시글을 주제별로 분류한 다음 시각화 과정을 거쳐 그래프로써 사용자에게 통계 결과를 보여준다. 
+3. '대나무숲' 게시글을 주제별로 분류한 다음 시각화 과정을 거쳐 그래프로써 사용자에게 통계 결과를 보여주는 기능을 구현한다. 
+4. (GUI를 이용하여) 사용자가 원하는 주제, 날짜 등을 입력받고 통계 결과를 출력하는 프로그램을 만든다.
 
 ## 6. 프로젝트 핵심
 페이스북 페이지로부터 원하는 데이터를 가져오고, 그 데이터를 원하는대로 가공하여 정렬할 수 있어야 한다.
 
 ## 7. 구현에 필요한 라이브러리나 기술
-{web parsing, pyqt5, pyautogui ...}
+{web parsing, Beautifulsoup, pyautogui, matplotlib, pyqt5 ...}
 
-
-<기술>
-
-web parsing
-
-<라이브러리>
-
-1. pyqt5 : GUI 구성을 할 수 있는 기능을 제공한다
-
-
-공식 사이트 - https://pypi.org/project/PyQt5/
-
-
-한국어 사용법 사이트 - https://wikidocs.net/book/2165
-2. pyautogui : 파이썬을 이용하여 마우스와 키보드의 움직임을 제어할 수 있는 기능을 제공한다
-
-
-공식 사이트 - https://pyautogui.readthedocs.io/en/latest/#
-
+> 1. 기술
+>     - web parsing : 웹 사이트에서 원하는 정보를 자동으로 수집하는 것
+> 2. 라이브러리
+>     - Beautifulsoup : 웹 데이터를 가져올 때 사용되는 라이브러리이다. 페이지의 HTML 소스를 가져올 때, 태그를 읽어서 우리가 이용할 부분인 게시글이나 좋아요를 분리해서 찾아주는 기능을 구현하기 위해 사용된다.
+>
+>     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;공식 사이트 - https://www.crummy.com/software/BeautifulSoup/
+>     - pyautogui : 파이썬을 이용하여 마우스와 키보드의 움직임을 제어할 수 있는 기능을 제공한다. 자동 스크롤을 구현하여 대나무숲의 예전 게시글들을 읽어 올 것이다. Facebook Open API를 구현하지 못하는 이뉴는, 이를 이용하려면 해당 페이지의 토큰이 필요한데, 토큰을 얻기 위해서는 이 페이지의 관리자여야 하기 때문이다.
+>
+>     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;공식 사이트 - https://pyautogui.readthedocs.io/en/latest/#
+>     - matplotlib : 
+>
+>     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;공식 사이트 - https://matplotlib.org/
+>
+>     - pyqt5 : GUI 구성을 할 수 있는 기능을 제공한다. 
+>
+>     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;공식 사이트 - https://pypi.org/project/PyQt5/
+>
+>     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;한국어 사용법 사이트 - https://wikidocs.net/book/2165
 
 ## 8. **분업 계획**
 1. 페이지를 가져오는거
