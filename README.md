@@ -22,7 +22,17 @@
 페이스북 페이지로부터 원하는 데이터를 가져오고, 그 데이터를 원하는대로 가공하여 정렬할 수 있어야 한다.
 
 ## 7. 구현에 필요한 라이브러리나 기술
-{web parsing, facebook open API,  ...}
+{web parsing, pyqt5, pyautogui ...}
+<기술>
+web parsing
+<라이브러리>
+1. pyqt5 : GUI 구성을 할 수 있는 기능을 제공한다
+공식 사이트 - https://pypi.org/project/PyQt5/
+한국어 사용법 사이트 - https://wikidocs.net/book/2165
+2. pyautogui : 파이썬을 이용하여 마우스와 키보드의 움직임을 제어할 수 있는 기능을 제공한다
+공식 사이트 - https://pyautogui.readthedocs.io/en/latest/#
+
+
 
 ## 8. **분업 계획**
 1. 페이지를 가져오는거
