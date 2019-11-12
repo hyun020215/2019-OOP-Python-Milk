@@ -53,9 +53,8 @@
 
     - pyqt5 : GUI 구성을 할 수 있는 기능을 제공한다. 데이터를 분석한다는 기본 기능을 완전히 구현한 프로그램을 만든 뒤,
     이를 GUI로 구현하고 싶어진다면 사용할 라이브러리이다.
-    > &nbsp;&nbsp;공식 사이트 - https://pypi.org/project/PyQt5/
-    >
-    > &nbsp;&nbsp;한국어 사용법 사이트 - https://wikidocs.net/book/2165
+    > &nbsp;&nbsp;공식 사이트 - https://pypi.org/project/PyQt5/  
+    &nbsp;&nbsp;한국어 사용법 사이트 - https://wikidocs.net/book/2165
 
 ## 8. **분업 계획**
 1. '세종과학예술영재학교 대나무숲' 페이지로부터 게시글을 html 파싱하는 모듈 개발 - 정유진, 양우현

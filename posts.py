@@ -34,4 +34,3 @@ class Post:
                 self.topic.append('bell')
             if self.has_keywords(['운동장']):
                 self.topic.append('exercise')
-
