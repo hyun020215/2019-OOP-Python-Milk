@@ -12,14 +12,14 @@ class Post:
         '운동장': ['운동장', '축구']
     }
 
-    def __init__(self, date, text, like=0, comment=0):
+    def __init__(self, date: str, text: str, like: int = 0, comment: int = 0):
         self.date = date
         self.text = text
         self.like = like
         self.comment = comment
         self.category = []
 
-    def has_keywords(self, keywords):
+    def has_keywords(self, keywords: list):
         for i in keywords:
             if i in self.text:
                 return True
