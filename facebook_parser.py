@@ -14,7 +14,7 @@ def webdriver_maker():
     options.add_argument("disable-gpu")
     options.add_argument("lang=ko_KR")
 
-    return webdriver.Chrome('/Users/kadragon/Dev/oop_python_ex/project_ex/14_chromedriver',
+    return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
                             options=options)
 
 
