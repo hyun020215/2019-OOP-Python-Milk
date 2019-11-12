@@ -1,40 +1,128 @@
-/venv
-/.idea
+# Created by .ignore support plugin (hsz.mobi)
+### Python template
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-*.txt
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
 *.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
 
-bfg-1.13.0.jar
-.vscode/
+# Flask stuff:
+instance/
+.webassets-cache
 
-file_conv.py
-.DS_Store
-project_ex/.DS_Store
-project_ex/__pycache__/
-student_result/.DS_Store
-student_result/2018/03_data_analysis/.DS_Store
-student_result/2018/03_data_analysis/01/__pycache__/
-student_result/2018/03_data_analysis/12/.DS_Store
-student_result/2018/03_data_analysis/26/
-student_result/2018/05_socket/.DS_Store
-student_result/2018/05_socket/01/.DS_Store
-student_result/2018/05_socket/02/.DS_Store
-student_result/2018/05_socket/10/.DS_Store
-student_result/2018/05_socket/11/.DS_Store
-student_result/2018/05_socket/12/.DS_Store
-student_result/2018/05_socket/13/.DS_Store
-student_result/2018/05_socket/14/.DS_Store
-student_result/2018/05_socket/15/.DS_Store
-student_result/2018/05_socket/16/.DS_Store
-student_result/2018/05_socket/17/.DS_Store
-student_result/2018/05_socket/18/.DS_Store
-student_result/2018/05_socket/19/.DS_Store
-student_result/2018/05_socket/20/.DS_Store
-student_result/2018/05_socket/21/.DS_Store
-student_result/2018/05_socket/22/.DS_Store
-student_result/2018/05_socket/23/.DS_Store
-student_result/2018/05_socket/24/.DS_Store
-student_result/2018/05_socket/25/.DS_Store
-student_result/2018/05_socket/26/.DS_Store
-student_result/2018/05_socket/27/.DS_Store
-student_result/2019/.DS_Store
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+.idea/
