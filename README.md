@@ -23,7 +23,8 @@
 
 ## 7. 구현에 필요한 라이브러리나 기술
 {web parsing, pyqt5, pyautogui ...}
-<hr>
+
+
 <기술>
 web parsing
 <라이브러리>
