@@ -35,16 +35,15 @@ web parsing : 웹 사이트에서 원하는 정보를 자동으로 수집하는 
 
 공식 사이트 - https://www.crummy.com/software/BeautifulSoup/
 
-2. pyautogui : 파이썬을 이용하여 마우스와 키보드의 움직임을 제어할 수 있는 기능을 제공한다. 자동 스크롤을 구현하여 대나무숲의 예전 게시글들을 읽어 올 것이다. Facebook Open API를 구현하지 못하는 이뉴는, 이를 이용하려면 해당 페이지의 토큰이 필요한데, 토큰을 얻기 위해서는 이 페이지의 관리자여야 하기 때문이다.
+2. pyautogui : 파이썬을 이용하여 마우스와 키보드의 움직임을 제어할 수 있는 기능을 제공한다. 자동 스크롤을 구현하여 대나무숲의 예전 게시글들을 읽어 올 것이다. Facebook Open API를 구현하지 못하는 이유는, 이를 이용하려면 해당 페이지의 토큰이 필요한데, 토큰을 얻기 위해서는 이 페이지의 관리자여야 하기 때문이다.
 
 공식 사이트 - https://pyautogui.readthedocs.io/en/latest/#
 
-3. matplotlib : 
+3. matplotlib : 파이썬에서 자료를 표나 그래프로 시각화시키는 기능을 제공한다. 대나무숲에서 획득한 데이터를 그래프화 시키는 데 사용될 것이다. 
 
 공식 사이트 - https://matplotlib.org/
 
-
-3. pyqt5 : GUI 구성을 할 수 있는 기능을 제공한다. 
+4. pyqt5 : GUI 구성을 할 수 있는 기능을 제공한다. 
 
 공식 사이트 - https://pypi.org/project/PyQt5/
 
