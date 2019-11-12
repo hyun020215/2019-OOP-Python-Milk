@@ -44,7 +44,7 @@
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;한국어 사용법 사이트 - https://wikidocs.net/book/2165
 
 ## 8. **분업 계획**
-1. 페이지를 가져오는거
+1. '세종과학예술영재학교 대나무숲' 페이지로부터 
 2. 데이터를 시각화시키는
 3. 프로그램 GUI 구현
 
