@@ -22,26 +22,34 @@
 페이스북 페이지로부터 원하는 데이터를 가져오고, 그 데이터를 원하는대로 가공하여 정렬할 수 있어야 한다.
 
 ## 7. 구현에 필요한 라이브러리나 기술
-{web parsing, pyqt5, pyautogui ...}
+{web parsing, Beautifulsoup, pyautogui, pyqt5 ...}
 
 
 <기술>
 
-web parsing
+web parsing : 웹 사이트에서 원하는 정보를 자동으로 수집하는 것
 
 <라이브러리>
+1. Beautifulsoup : 웹 데이터를 가져올 때 사용되는 라이브러리이다. 페이지의 HTML 소스를 가져올 때, 태그를 읽어서 소스를 분리해주는 기능을 구현하기 위해 사용된다.
 
-1. pyqt5 : GUI 구성을 할 수 있는 기능을 제공한다
+
+공식 사이트 - https://www.crummy.com/software/BeautifulSoup/
+
+2. pyautogui : 파이썬을 이용하여 마우스와 키보드의 움직임을 제어할 수 있는 기능을 제공한다
+
+
+공식 사이트 - https://pyautogui.readthedocs.io/en/latest/#
+
+
+3. pyqt5 : GUI 구성을 할 수 있는 기능을 제공한다
 
 
 공식 사이트 - https://pypi.org/project/PyQt5/
 
 
 한국어 사용법 사이트 - https://wikidocs.net/book/2165
-2. pyautogui : 파이썬을 이용하여 마우스와 키보드의 움직임을 제어할 수 있는 기능을 제공한다
 
 
-공식 사이트 - https://pyautogui.readthedocs.io/en/latest/#
 
 
 ## 8. **분업 계획**
