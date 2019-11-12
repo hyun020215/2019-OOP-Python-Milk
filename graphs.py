@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 class Graph:
     @ staticmethod
-    def bar_graph(title: str, x: list, y: list, x_label: str, y_label: str):
+    def bar_graph(title: str, x: list, y: list, x_label: str, y_label: str) -> None:
         font_name = mpl.font_manager.FontProperties(fname='C:/Windows/Fonts/malgun.ttf').get_name()
         mpl.rc('font', family=font_name)
 
@@ -15,7 +15,7 @@ class Graph:
         plt.show()
 
     @ staticmethod
-    def line_graph(title: str, x: list, y: list, x_label: str, y_label: str):
+    def line_graph(title: str, x: list, y: list, x_label: str, y_label: str) -> None:
         font_name = mpl.font_manager.FontProperties(fname='C:/Windows/Fonts/malgun.ttf').get_name()
         mpl.rc('font', family=font_name)
 
