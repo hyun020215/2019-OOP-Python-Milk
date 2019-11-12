@@ -1,5 +1,5 @@
 class Post:
-    words = {
+    __topics = {
         '기숙사': ['기숙사', '사감', '정독', '소학', '요양', '벌점', '자습', '냉장', '점호', '폰', '스탠딩'],
         '급식': ['급식', '영양사', '조리사', '메뉴', '점심', '잔반', '배식'],
         '입시': ['입시', '대학', '면접', '논술', '원서'],
@@ -11,6 +11,13 @@ class Post:
         '종소리': ['종소리', '벨소리', '기상송', '방송부'],
         '운동장': ['운동장', '축구']
     }
+
+    @ staticmethod
+    def set_topics(topic: str, keywords: list) -> None:
+        if topic in Post.__topics:
+            Post.__topics[topic].append(keywords)
+        else:
+            Post.__topics[topic] = keywords
 
     def __init__(self, date: str, text: str, like: int = 0, comment: int = 0) -> None:
         self.date = date
@@ -27,7 +34,7 @@ class Post:
 
     def find_category(self) -> list:
         if not self.category:
-            for topic, keywords in Post.words.items():
+            for topic, keywords in Post.__topics.items():
                 if self.has_keywords(keywords):
                     self.category.append(topic)
         return self.category
