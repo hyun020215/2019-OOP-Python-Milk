@@ -26,8 +26,11 @@
 
 
 <기술>
+
 web parsing
+
 <라이브러리>
+
 1. pyqt5 : GUI 구성을 할 수 있는 기능을 제공한다
 공식 사이트 - https://pypi.org/project/PyQt5/
 한국어 사용법 사이트 - https://wikidocs.net/book/2165
