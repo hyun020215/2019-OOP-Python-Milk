@@ -1,5 +1,5 @@
 import matplotlib as mpl
-import matplotlib.pyplot as  plt
+import matplotlib.pyplot as plt
 
 
 class Graph:
