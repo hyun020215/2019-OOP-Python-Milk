@@ -30,7 +30,7 @@ class Post:
         self.like = like
         self.comment = comment
 
-        # 게시글의 주제 분류
+        # 게시글의 주제 분류, get_category 메써드를 제외하고 외부 접근 불가
         self.__category = []
         for topic, keywords in Post.__topics.items():
             if self.has_keywords(keywords):
