@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 # 그래프 클래스: 막대그래프, 꺾은선그래프 등 다양한 그래프를 그릴 수 있다.
 class Graph:
     # 막대그래프
-    # 매개변수 - title: 그래프 제목, x: x축 값(분류 범주), y: y축 값(데이터 셋 묶음, 최대 10개),
-    #           x_label: x축 제목, y_label: y축 제목
+    # 매개변수 - title: 그래프 제목, x: x축 값(분류 범주), y: y축 값(데이터 리스트 묶음, 최대 10개), x_label: x축 제목, y_label: y축 제목
     @ staticmethod
     def bar_graph(title: str, x: list, y: dict, x_label: str, y_label: str) -> None:
         # 한글 폰트 설정: 나눔스퀘어레귤러
@@ -31,8 +30,7 @@ class Graph:
         plt.show()
 
     # 꺾은선그래프
-    # 매개변수 - title: 그래프 제목, x: x축 값(분류 범주), y: y축 값(데이터 셋 묶음),
-    #           x_label: x축 제목, y_label: y축 제목
+    # 매개변수 - title: 그래프 제목, x: x축 값(분류 범주), y: y축 값(데이터 리스트 묶음), x_label: x축 제목, y_label: y축 제목
     @ staticmethod
     def line_graph(title: str, x: list, y: dict, x_label: str, y_label: str) -> None:
         # 한글 폰트 설정: 나눔스퀘어레귤러
