@@ -1,5 +1,5 @@
 import matplotlib as mpl
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as  plt
 
 
 class Graph:
@@ -34,4 +34,4 @@ class Graph:
 
 
 if __name__ == '__main__':
-    Graph.bar_graph(title='주제별 게시물 건수', x=['기숙사', '급식', '건의사항'], y={'post': [3, 5, 2], 'what': [1, 2, 3], 'who': [3,2,1]}, x_label='주제', y_label='건수')
+    Graph.bar_graph(title='주제별 게시물 건수', x=['기숙사', '급식', '건의사항'], y={'post': [3, 5, 2], 'what': [1, 2, 3], 'who': [3, 2, 1]}, x_label='주제', y_label='건수')
