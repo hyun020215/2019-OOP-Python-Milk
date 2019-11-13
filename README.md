@@ -47,7 +47,7 @@
     자동 스크롤을 구현하여 대나무숲의 예전 게시글들을 읽어 올 것이다.
     Facebook Open API에 페이지 연동 기능이 구현되어 있으나,
     해당 페이지의 관리자 권한과 토큰이 필요한 관계로 사용이 불가하다.
-    > &nbsp;&nbsp;공식 사이트 - https://pyautogui.readthedocs.io/en/latest/#
+    > &nbsp;&nbsp;공식 사이트 - https://www.seleniumhq.org/
 
     - matplotlib : 파이썬에서 자료를 표나 그래프로 시각화시키는 기능을 제공한다.
     대나무숲에서 획득한 데이터를 그래프화 시키는 데 사용될 것이다.
