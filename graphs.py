@@ -11,7 +11,7 @@ class Graph:
         values = list(y.items())
         for i in range(len(values)):
             label, value = values[i]
-            plt.bar([j+0.1*(-len(values)+1+2*i) for j in range(len(x))], value, width=0.2, label=label)
+            plt.bar([j+0.05*(-len(values)+1+2*i) for j in range(len(x))], value, width=0.1, label=label)
         plt.xticks([i for i in range(len(x))], x)
         plt.xlabel(x_label)
         plt.ylabel(y_label)
