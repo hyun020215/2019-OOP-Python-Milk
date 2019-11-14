@@ -69,4 +69,4 @@ class Graph:
 
 
 if __name__ == '__main__':
-    Graph.pie_graph(title='국가별 ??? 기여도', data={'Korea': 124, 'Japan': 235, 'America': 412})
+    Graph.pie_graph(title='국가별 기여도', data={'Korea': 124, 'Japan': 235, 'America': 412})
