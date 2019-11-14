@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # 그래프 클래스: 막대그래프, 꺾은선그래프 등 다양한 그래프를 그릴 수 있다.
 class Graph:
-    # 막대그래프
+    # 막대그래프 그리기
     # 매개변수 - title: 그래프 제목, x: x축 값(분류 범주), y: y축 값(데이터 리스트 묶음, 최대 10개), x_label: x축 제목, y_label: y축 제목
     @ staticmethod
     def bar_graph(title: str, x: list, y: dict, x_label: str, y_label: str) -> None:
@@ -29,7 +29,7 @@ class Graph:
         # 그래프 띄우기
         plt.show()
 
-    # 꺾은선그래프
+    # 꺾은선그래프 그리기
     # 매개변수 - title: 그래프 제목, x: x축 값(분류 범주), y: y축 값(데이터 리스트 묶음), x_label: x축 제목, y_label: y축 제목
     @ staticmethod
     def line_graph(title: str, x: list, y: dict, x_label: str, y_label: str) -> None:
@@ -50,10 +50,10 @@ class Graph:
         # 그래프 띄우기
         plt.show()
 
-    # 원그래프
+    # 원그래프 그리기
     # 매개변수 - title: 그래프 제목, data: 데이터 셋 {범주: 값} 묶음
     @ staticmethod
-    def pie_graph(title: str, data: dict):
+    def pie_graph(title: str, data: dict) -> None:
         # 한글 폰트 설정: 나눔스퀘어레귤러
         font_name = mpl.font_manager.FontProperties(fname='C:/Windows/Fonts/NanumSquareR.ttf').get_name()
         mpl.rc('font', family=font_name)
