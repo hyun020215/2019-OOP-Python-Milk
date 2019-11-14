@@ -59,7 +59,8 @@ class Graph:
         mpl.rc('font', family=font_name)
 
         # 그래프에 값 표시
-        plt.pie(list(data.values()), labels=list(data.keys()), startangle=90, shadow=True, autopct='%1.1f%%')
+        plt.pie(list(data.values()), labels=list(data.keys()), startangle=90, shadow=True,
+                explode=[0.1 if i == 0 else 0 for i in range(len(data))], autopct='%1.1f%%')
 
         # 그래프 제목 표시
         plt.title(title)
