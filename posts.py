@@ -23,7 +23,7 @@ class Post:
         else:  # 기존에 없던 주제라면 주제와 키워드 동시 삽입
             Post.__topics[topic] = keywords
 
-    # 초기 값 - date: 게시 시일, text: 내용, like: 좋아요 및 공감 수, comment: 댓글 수
+    # 초기 값 - date: 게시 시일(YYYY.MM.DD), text: 내용, like: 좋아요 및 공감 수, comment: 댓글 수
     def __init__(self, date: str, text: str, like: int = 0, comment: int = 0) -> None:
         self.date = date
         self.text = text
