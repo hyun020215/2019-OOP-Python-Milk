@@ -70,4 +70,6 @@ class Graph:
 
 
 if __name__ == '__main__':
-    Graph.pie_graph(title='국가별 기여도', data={'Korea': 124, 'Japan': 235, 'America': 412})
+    Graph.bar_graph('막대그래프', [1, 2, 3], {'값1': [2, 3, 4], '값2': [4, 1, 2]}, '가로', '세로')
+    Graph.line_graph('꺾은선그래프', [1, 2, 3], {'값': [3, 4, 5], '값2': [4, 1, 2]}, '가로', '세로')
+    Graph.pie_graph('원그래프', {'값1': 124, '값2': 235, '값3': 412})
