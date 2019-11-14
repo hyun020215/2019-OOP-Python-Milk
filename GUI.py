@@ -12,7 +12,7 @@ class MyApp(QMainWindow, QWidget):
         self.initUI()
 
     def initUI(self):
-        exitAction = QAction(QIcon('exit.png'), 'Exit', self)
+        exitAction = QAction(QIcon('images/exit.png'), 'Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(qApp.quit)
@@ -39,7 +39,7 @@ class MyApp(QMainWindow, QWidget):
         btn.clicked.connect(QCoreApplication.instance().quit)
 
         self.setWindowTitle('My First Application')
-        self.setWindowIcon(QIcon('icon.png'))
+        self.setWindowIcon(QIcon('images/icon.png'))
         self.resize(400, 200)
         self.center()
         self.show()
