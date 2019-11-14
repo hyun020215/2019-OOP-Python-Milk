@@ -3,16 +3,16 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 
-# 그래프 클래스: 막대그래프, 꺾은선그래프 등 다양한 그래프를 그릴 수 있다.
+# 그래프 클래스
 class Graph:
+    # 한글 폰트 설정: 나눔스퀘어레귤러
+    font_name = mpl.font_manager.FontProperties(fname='C:/Windows/Fonts/NanumSquareR.ttf').get_name()
+    mpl.rc('font', family=font_name)
+
     # 막대그래프 그리기
     # 매개변수 - title: 그래프 제목, x: x축 값(분류 범주), y: y축 값(데이터 리스트 묶음, 최대 10개), x_label: x축 제목, y_label: y축 제목
     @ staticmethod
     def bar_graph(title: str, x: list, y: dict, x_label: str, y_label: str) -> None:
-        # 한글 폰트 설정: 나눔스퀘어레귤러
-        font_name = mpl.font_manager.FontProperties(fname='C:/Windows/Fonts/NanumSquareR.ttf').get_name()
-        mpl.rc('font', family=font_name)
-
         # 그래프에 값 표시
         values = list(y.items())
         for i in range(len(values)):
@@ -33,10 +33,6 @@ class Graph:
     # 매개변수 - title: 그래프 제목, x: x축 값(분류 범주), y: y축 값(데이터 리스트 묶음), x_label: x축 제목, y_label: y축 제목
     @ staticmethod
     def line_graph(title: str, x: list, y: dict, x_label: str, y_label: str) -> None:
-        # 한글 폰트 설정: 나눔스퀘어레귤러
-        font_name = mpl.font_manager.FontProperties(fname='C:/Windows/Fonts/NanumSquareR.ttf').get_name()
-        mpl.rc('font', family=font_name)
-
         # 그래프에 값 표시
         for label, value in y.items():
             plt.plot(x, value, label=label, marker='o')
@@ -54,10 +50,6 @@ class Graph:
     # 매개변수 - title: 그래프 제목, data: 데이터 셋 {범주: 값} 묶음
     @ staticmethod
     def pie_graph(title: str, data: dict) -> None:
-        # 한글 폰트 설정: 나눔스퀘어레귤러
-        font_name = mpl.font_manager.FontProperties(fname='C:/Windows/Fonts/NanumSquareR.ttf').get_name()
-        mpl.rc('font', family=font_name)
-
         # 그래프에 값 표시
         plt.pie(list(data.values()), labels=list(data.keys()), startangle=90, shadow=True,
                 explode=[0.1 if i == 0 else 0 for i in range(len(data))], autopct='%1.1f%%')
