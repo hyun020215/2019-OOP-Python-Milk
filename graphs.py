@@ -15,9 +15,12 @@ class Graph:
     def bar_graph(title: str, x: list, y: dict, x_label: str, y_label: str) -> None:
         # 그래프에 값 표시
         values = list(y.items())
+        shift = 0.03 * values[0][1][0]
         for i in range(len(values)):
             label, value = values[i]
-            plt.bar([j+0.05*(-len(values)+1+2*i) for j in range(len(x))], value, width=0.1, label=label)
+            rects = plt.bar([j+0.05*(-len(values)+1+2*i) for j in range(len(x))], value, width=0.1, label=label)
+            for j, rect in enumerate(rects):
+                plt.text(rect.get_x() + rect.get_width() / 2.0, rect.get_height() + shift, str(value[j]), ha='center')
 
         # 그래프 축 제목, 범례, 제목 등의 요소 표시
         plt.xticks([i for i in range(len(x))], x)
@@ -34,8 +37,11 @@ class Graph:
     @ staticmethod
     def line_graph(title: str, x: list, y: dict, x_label: str, y_label: str) -> None:
         # 그래프에 값 표시
+        shift = 0.03 * list(y.items())[0][1][0]
         for label, value in y.items():
             plt.plot(x, value, label=label, marker='o')
+            for i in range(len(value)):
+                plt.text(x[i], value[i] + shift, str(value[i]), ha='center')
 
         # 그래프 축 제목, 범례, 제목 등의 요소 표시
         plt.xlabel(x_label)
@@ -51,8 +57,8 @@ class Graph:
     @ staticmethod
     def pie_graph(title: str, data: dict) -> None:
         # 그래프에 값 표시
-        plt.pie(list(data.values()), labels=list(data.keys()), startangle=90, shadow=True,
-                explode=[0.1 if i == 0 else 0 for i in range(len(data))], autopct='%1.1f%%')
+        plt.pie(list(data.values()), labels=list(map(lambda x: x + '\n' + str(data[x]), data.keys())),
+                startangle=90, shadow=True, explode=[0.1 if i == 0 else 0 for i in range(len(data))], autopct='%1.1f%%')
 
         # 그래프 제목 표시
         plt.title(title)
@@ -63,5 +69,5 @@ class Graph:
 
 if __name__ == '__main__':
     Graph.bar_graph('막대그래프', [1, 2, 3], {'값1': [2, 3, 4], '값2': [4, 1, 2]}, '가로', '세로')
-    Graph.line_graph('꺾은선그래프', [1, 2, 3], {'값': [3, 4, 5], '값2': [4, 1, 2]}, '가로', '세로')
+    Graph.line_graph('꺾은선그래프', [1, 2, 3], {'값1': [3, 4, 5], '값2': [4, 1, 2]}, '가로', '세로')
     Graph.pie_graph('원그래프', {'값1': 124, '값2': 235, '값3': 412})
