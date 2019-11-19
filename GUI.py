@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import facebook_parser as fbps
 
 
 class MyWindow(QWidget):
@@ -41,11 +42,11 @@ class MyWindow(QWidget):
         set_condition.addWidget(self.period_alert)
         set_condition.addStretch()
 
-        result_list = QListView(self)
+        self.result_list = QListWidget(self)
 
         search_result = QVBoxLayout()
         search_result.addWidget(QLabel('검색 결과', self))
-        search_result.addWidget(result_list)
+        search_result.addWidget(self.result_list)
 
         search = QHBoxLayout()
         search.addLayout(search_result)
@@ -108,6 +109,9 @@ class MyWindow(QWidget):
             self.period_alert.show()
         else:
             self.period_alert.hide()
+            self.result_list.clear()
+            result = fbps.post_crawl(self.period_start.date(), self.period_end.date())
+            self.result_list.addItems(result)
 
 
 if __name__ == "__main__":
