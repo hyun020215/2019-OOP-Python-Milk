@@ -19,7 +19,8 @@ def webdriver_maker():
 
     #return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
     #                        options=options)
-    return webdriver.Chrome('C:/사용자/USER/PycharmProjects/2019-OOP-Python-Milk-chromedriver.exe',options=options)
+    return webdriver.Chrome('C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe',options=options)
+
 
 def timestamp_to_str(timestamp):
     """
@@ -31,11 +32,19 @@ def timestamp_to_str(timestamp):
 
 
 def post_crawl(start, end):
+    """
+    start 와 end 의 날짜 형식은 2000.00.00 이다.
+    :param start: 크롤링을 시작하는 시간(start 에서부터)
+    :param end: 크롤링을 끝내는 시간(end 까지)
+    :return:
+    """
+
+    start = list(map(int,start.split('.')))  # [2000,00,00]
+    end = list(map(int,end.split('.')))
+    inform = []  # 게시글 정보를 담을 리스트
+
     driver = webdriver_maker()
     driver.get(TARGET_URL)
-
-    # 페이스북의 경우 페이지 스크롤링을 해야 새로운 게시물을 볼 수 있다.
-    scroll_count = 20
 
     # 페이지 스크롤링 코드
     while driver.find_element_by_tag_name('div'):
@@ -44,12 +53,6 @@ def post_crawl(start, end):
         if 'End of Results' in Divs:  # 영어 버전에서 작동하는 코드
             print('end')
             break
-        else:
-            if scroll_count != 0:  # 일정량만 제한하기 위하여 조치함.
-                scroll_count -= 1
-                continue
-            else:
-                break
 
     html = driver.page_source  # html 추출
 
@@ -65,12 +68,20 @@ def post_crawl(start, end):
             continue
 
         j = post.select('div')
+        temp = []
+        temp.append(timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip())))  # 날짜 출력
+        temp.append(j[16].getText().strip())  # 내용 출력
+        try:
+            for i in range(0,6): # 좋아요 종류 6가지
+                temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
+        except IndexError:
+            pass
+        inform.append(temp)
 
-        print(timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip())))  # 날짜 출력
-        print(j[16].getText().strip())  # 내용 출력
-
-        print("=" * 20)
-
+    print(inform)
     print('END')
 
     driver.quit()  # 드라이버 사용 종료. 이 코드가 없을 경우 프로세스가 남게 됨.
+
+
+post_crawl('2000.00.00','2000.00.00')
