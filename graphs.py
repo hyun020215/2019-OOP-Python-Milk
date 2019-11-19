@@ -44,6 +44,7 @@ class Graph:
                 plt.text(x[i], value[i] + shift, str(value[i]), ha='center')
 
         # 그래프 축 제목, 범례, 제목 등의 요소 표시
+        plt.xticks([i+1 for i in range(len(x))], x)
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         plt.legend()
