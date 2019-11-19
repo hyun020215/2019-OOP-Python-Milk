@@ -30,7 +30,7 @@ def timestamp_to_str(timestamp):
     return datetime.fromtimestamp(timestamp).strftime("%Y.%m.%d %H:%M:%S")
 
 
-def web_parser():
+def post_crawl(start, end):
     driver = webdriver_maker()
     driver.get(TARGET_URL)
 
