@@ -1,63 +1,3 @@
-"""
-import sys
-from PyQt5.QtWidgets import QApplication, QPushButton, QToolTip, QMainWindow, QAction, qApp, QWidget, QDesktopWidget
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import QCoreApplication
-
-
-class MyApp(QMainWindow, QWidget):
-
-    def __init__(self):
-        super().__init__()
-
-        self.initUI()
-
-    def initUI(self):
-        exitAction = QAction(QIcon('images/exit.png'), 'Exit', self)
-        exitAction.setShortcut('Ctrl+Q')
-        exitAction.setStatusTip('Exit application')
-        exitAction.triggered.connect(qApp.quit)
-
-        self.statusBar()
-
-        self.toolbar = self.addToolBar('Exit')
-        self.toolbar.addAction(exitAction)
-
-        menubar = self.menuBar()
-        menubar.setNativeMenuBar(False)
-        fileMenu = menubar.addMenu('&File')
-        fileMenu.addAction(exitAction)
-
-        self.statusBar().showMessage('Ready')
-
-        QToolTip.setFont(QFont('SansSerif', 10))
-        self.setToolTip('This is a <b>QWidget</b> widget')
-
-        btn = QPushButton('Quit', self)
-        btn.setToolTip('This is a <b>QPushButton</b> widget')
-        btn.move(300, 150)
-        btn.resize(btn.sizeHint())
-        btn.clicked.connect(QCoreApplication.instance().quit)
-
-        self.setWindowTitle('My First Application')
-        self.setWindowIcon(QIcon('images/icon.png'))
-        self.resize(400, 200)
-        self.center()
-        self.show()
-
-    def center(self):
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
-
-
-if __name__ == '__main__':
-
-    app = QApplication(sys.argv)
-    ex = MyApp()
-    sys.exit(app.exec_())
-"""
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -68,25 +8,38 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 class MyWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.set_up_UI()
 
-    def set_up_UI(self):
-        period_start = QDateEdit(self)
-        period_end = QDateEdit(self)
+        # set up UI
+        period_label = QHBoxLayout()
+        period_label.addWidget(QLabel('검색 기간', self))
+        period_label.addStretch()
+
+        self.period_start = QDateEdit(self)
+        self.period_end = QDateEdit(self)
 
         period = QHBoxLayout()
-        period.addStretch(1)
-        period.addWidget(period_start)
+        period.addWidget(self.period_start)
         period.addWidget(QLabel('~', self))
-        period.addWidget(period_end)
-        period.addStretch(1)
+        period.addWidget(self.period_end)
 
         search_button = QPushButton('검색', self)
+        search_button.clicked.connect(self.period_check)
+
+        search_button_layout = QHBoxLayout()
+        search_button_layout.addStretch()
+        search_button_layout.addWidget(search_button)
+
+        self.period_alert = QLabel('검색 기간이 잘못되었습니다', self)
+        self.period_alert.setObjectName('period_alert')
+        self.period_alert.setStyleSheet('QLabel#period_alert {color: red}')
+        self.period_alert.hide()
 
         set_condition = QVBoxLayout()
+        set_condition.addLayout(period_label)
         set_condition.addLayout(period)
-        set_condition.addWidget(search_button)
-        set_condition.addStretch(8)
+        set_condition.addLayout(search_button_layout)
+        set_condition.addWidget(self.period_alert)
+        set_condition.addStretch()
 
         result_list = QListView(self)
 
@@ -95,11 +48,10 @@ class MyWindow(QWidget):
         search_result.addWidget(result_list)
 
         search = QHBoxLayout()
-        search.addStretch(1)
         search.addLayout(search_result)
-        search.addStretch(1)
         search.addLayout(set_condition)
-        search.addStretch(1)
+        search.setStretchFactor(search_result, 1)
+        search.setStretchFactor(set_condition, 0)
 
         self.resize(1200, 600)
         self.center()
@@ -143,13 +95,19 @@ class MyWindow(QWidget):
 
     def closeEvent(self, event):
 
-        reply = QMessageBox.question(self, 'Message', 'Are you sure to quit?',
+        reply = QMessageBox.question(self, 'Message', '정말 프로그램을 종료하시겠습니까?',
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
             event.accept()
         else:
             event.ignore()
+
+    def period_check(self):
+        if self.period_start.date() > self.period_end.date():
+            self.period_alert.show()
+        else:
+            self.period_alert.hide()
 
 
 if __name__ == "__main__":
