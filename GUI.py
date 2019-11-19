@@ -30,7 +30,7 @@ class MyWindow(QWidget):
         search_button_layout.addStretch()
         search_button_layout.addWidget(search_button)
 
-        self.period_alert = QLabel('검색 기간이 잘못되었습니다', self)
+        self.period_alert = QLabel('검색 기간이 잘못되었습니다.', self)
         self.period_alert.setObjectName('period_alert')
         self.period_alert.setStyleSheet('QLabel#period_alert {color: red}')
         self.period_alert.hide()
@@ -43,9 +43,18 @@ class MyWindow(QWidget):
         set_condition.addStretch()
 
         self.result_list = QListWidget(self)
+        self.no_result = QLabel('검색 결과가 없습니다.', self)
+        self.no_result.setObjectName('no_result')
+        self.no_result.setStyleSheet('QLabel#no_result {color: red}')
+        self.no_result.hide()
+        self.progress = QProgressBar(self)
+        self.progress.setRange(0, 0)
+        self.progress.hide()
 
         search_result = QVBoxLayout()
         search_result.addWidget(QLabel('검색 결과', self))
+        search_result.addWidget(self.progress)
+        search_result.addWidget(self.no_result)
         search_result.addWidget(self.result_list)
 
         search = QHBoxLayout()
@@ -95,7 +104,6 @@ class MyWindow(QWidget):
         self.move(position.topLeft())
 
     def closeEvent(self, event):
-
         reply = QMessageBox.question(self, 'Message', '정말 프로그램을 종료하시겠습니까?',
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
@@ -110,8 +118,13 @@ class MyWindow(QWidget):
         else:
             self.period_alert.hide()
             self.result_list.clear()
-            result = fbps.post_crawl(self.period_start.date(), self.period_end.date())
-            self.result_list.addItems(result)
+            self.progress.show()
+            result = fbps.post_crawl(self.period_start, self.period_end)
+            self.progress.hide()
+            if not result:
+                self.no_result.show()
+            else:
+                self.result_list.addItems(result)
 
 
 if __name__ == "__main__":
