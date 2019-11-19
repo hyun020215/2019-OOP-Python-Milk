@@ -1,9 +1,24 @@
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import facebook_parser as fbps
+
+
+class WebCrawl(QThread):
+
+    finished = pyqtSignal(list)
+
+    def __init__(self, begin, finish):
+        QThread.__init__(self)
+        self.begin = begin
+        self.finish = finish
+
+    def run(self) -> None:
+        result = fbps.post_crawl(self.begin, self.finish)
+        self.finished.emit(result)
 
 
 class MyWindow(QWidget):
@@ -41,6 +56,8 @@ class MyWindow(QWidget):
         set_condition.addLayout(search_button_layout)
         set_condition.addWidget(self.period_alert)
         set_condition.addStretch()
+        self.post_crawling = WebCrawl(self.period_start, self.period_end)
+        self.post_crawling.finished.connect(self.update_search_result_list)
 
         self.result_list = QListWidget(self)
         self.no_result = QLabel('검색 결과가 없습니다.', self)
@@ -119,12 +136,15 @@ class MyWindow(QWidget):
             self.period_alert.hide()
             self.result_list.clear()
             self.progress.show()
-            result = fbps.post_crawl(self.period_start, self.period_end)
+            self.post_crawling.start()
+
+    @ pyqtSlot(list)
+    def update_search_result_list(self, result):
+        if not result:
+            self.no_result.show()
+        else:
             self.progress.hide()
-            if not result:
-                self.no_result.show()
-            else:
-                self.result_list.addItems(result)
+            self.result_list.addItems(result)
 
 
 if __name__ == "__main__":
