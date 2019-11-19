@@ -8,6 +8,7 @@ TARGET_URL = 'https://www.facebook.com/SASABamboo/'  # 세종과학예술영재�
 def webdriver_maker():
     """
     headless 브라우저(창이 안뜨는)를 위해서 설정.
+    https://beomi.github.io/2017/09/28/HowToMakeWebCrawler-Headless-Chrome/
     :return: webdriver (크롬)을 생성
     """
     options = webdriver.ChromeOptions()
@@ -16,9 +17,9 @@ def webdriver_maker():
     options.add_argument("disable-gpu")
     options.add_argument("lang=ko_KR")
 
-    return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
-                            options=options)
-
+    #return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
+    #                        options=options)
+    return webdriver.Chrome('C:/사용자/USER/PycharmProjects/2019-OOP-Python-Milk-chromedriver.exe',options=options)
 
 def timestamp_to_str(timestamp):
     """
