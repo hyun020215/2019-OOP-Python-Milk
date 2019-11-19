@@ -140,10 +140,10 @@ class MyWindow(QWidget):
 
     @ pyqtSlot(list)
     def update_search_result_list(self, result):
+        self.progress.hide()
         if not result:
             self.no_result.show()
         else:
-            self.progress.hide()
             self.result_list.addItems(result)
 
 
