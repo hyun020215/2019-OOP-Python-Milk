@@ -39,9 +39,11 @@ def post_crawl(start, end):
     :return:
     """
 
-    start = list(map(int,start.split('.')))  # [2000,00,00]
+    start = list(map(int,start.split('.')))  # [2000,00,00] [년, 월, 일]
     end = list(map(int,end.split('.')))
     inform = []  # 게시글 정보를 담을 리스트
+    print(start)
+    print(end)
 
     driver = webdriver_maker()
     driver.get(TARGET_URL)
@@ -53,12 +55,12 @@ def post_crawl(start, end):
         if 'End of Results' in Divs:  # 영어 버전에서 작동하는 코드
             print('end')
             break
+        break
 
     html = driver.page_source  # html 추출
-
     soup = bs4.BeautifulSoup(html, 'html.parser')  # bs4에게 부탁
     posts = soup.select('div.userContentWrapper')  # 게시물이 포함되어 있는 <div class='userContentWrapper'> 검색
-
+    print(posts)
     first_post_pass = True
 
     for post in posts:
@@ -69,13 +71,32 @@ def post_crawl(start, end):
 
         j = post.select('div')
         temp = []
-        temp.append(timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip())))  # 날짜 출력
-        temp.append(j[16].getText().strip())  # 내용 출력
+        print(timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip())))  # 날짜 추출
+        """
+        y = int(date[0:4])
+        m = int(date[5:6])
+        d = int(date[7:8])
+
+        # 시간대 걸러주기
+    
+        if y<start[0] or y>end[0] :
+            break
+        elif m<start[1] or m>end[1]:
+            break
+        elif d<start[2] or d>end[2]:
+            break
+    
+        temp.append(y)
+        temp.append(m)
+        temp.append(d) # 날짜 추가
+        """
+        temp.append(j[16].getText().strip())  # 내용 추가
         try:
-            for i in range(0,6): # 좋아요 종류 6가지
+            for i in range(0,6): # 좋아요 종류 6가지 추가
                 temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
         except IndexError:
             pass
+
         inform.append(temp)
 
     print(inform)
@@ -84,4 +105,4 @@ def post_crawl(start, end):
     driver.quit()  # 드라이버 사용 종료. 이 코드가 없을 경우 프로세스가 남게 됨.
 
 
-post_crawl('2000.00.00','2000.00.00')
+post_crawl('2019.11.16','2019.11.20')
