@@ -7,20 +7,6 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import facebook_parser as fbps
 
 
-class PostCrawl(QThread):
-
-    finished = pyqtSignal(list)
-
-    def __init__(self, begin, finish):
-        QThread.__init__(self)
-        self.begin = begin
-        self.finish = finish
-
-    def run(self) -> None:
-        result = fbps.post_crawl(self.begin, self.finish)
-        self.finished.emit(result)
-
-
 class MyWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -56,7 +42,7 @@ class MyWindow(QWidget):
         set_condition.addLayout(search_button_layout)
         set_condition.addWidget(self.period_alert)
         set_condition.addStretch()
-        self.post_crawling = PostCrawl(self.period_start, self.period_end)
+        self.post_crawling = PostCrawl(self)
         self.post_crawling.finished.connect(self.update_search_result_list)
 
         self.result_list = QListWidget(self)
@@ -150,6 +136,19 @@ class MyWindow(QWidget):
             self.no_result.show()
         else:
             self.result_list.addItems(result)
+
+
+class PostCrawl(QThread):
+
+    finished = pyqtSignal(list)
+
+    def __init__(self, current_window: MyWindow):
+        QThread.__init__(self)
+        self.window = current_window
+
+    def run(self) -> None:
+        result = fbps.post_crawl(self.window.period_start, self.window.period_end)
+        self.finished.emit(result)
 
 
 if __name__ == "__main__":
