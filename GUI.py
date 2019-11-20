@@ -7,7 +7,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import facebook_parser as fbps
 
 
-class WebCrawl(QThread):
+class PostCrawl(QThread):
 
     finished = pyqtSignal(list)
 
@@ -56,7 +56,7 @@ class MyWindow(QWidget):
         set_condition.addLayout(search_button_layout)
         set_condition.addWidget(self.period_alert)
         set_condition.addStretch()
-        self.post_crawling = WebCrawl(self.period_start, self.period_end)
+        self.post_crawling = PostCrawl(self.period_start, self.period_end)
         self.post_crawling.finished.connect(self.update_search_result_list)
 
         self.result_list = QListWidget(self)
@@ -68,10 +68,14 @@ class MyWindow(QWidget):
         self.progress.setRange(0, 0)
         self.progress.hide()
 
+        search_result_label = QHBoxLayout()
+        search_result_label.addWidget(QLabel('검색 결과', self))
+        search_result_label.addWidget(self.progress)
+        search_result_label.addWidget(self.no_result)
+        search_result_label.addStretch()
+
         search_result = QVBoxLayout()
-        search_result.addWidget(QLabel('검색 결과', self))
-        search_result.addWidget(self.progress)
-        search_result.addWidget(self.no_result)
+        search_result.addLayout(search_result_label)
         search_result.addWidget(self.result_list)
 
         search = QHBoxLayout()
@@ -134,6 +138,7 @@ class MyWindow(QWidget):
             self.period_alert.show()
         else:
             self.period_alert.hide()
+            self.no_result.hide()
             self.result_list.clear()
             self.progress.show()
             self.post_crawling.start()
