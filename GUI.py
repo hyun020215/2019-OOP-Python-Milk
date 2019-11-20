@@ -45,7 +45,16 @@ class MyWindow(QWidget):
         self.post_crawling = PostCrawl(self)
         self.post_crawling.finished.connect(self.update_search_result_list)
 
-        self.result_list = QListWidget(self)
+        sort_by = QComboBox(self)
+        sort_by.addItems(['게시 일자', '공감 수', '댓글 수'])
+        sort_by.currentIndexChanged.connect(self.set_sort_method)
+
+        search_result_label1 = QHBoxLayout()
+        search_result_label1.addWidget(QLabel('검색 결과', self))
+        search_result_label1.addStretch()
+        search_result_label1.addWidget(QLabel('정렬 기준', self))
+        search_result_label1.addWidget(sort_by)
+
         self.no_result = QLabel('검색 결과가 없습니다.', self)
         self.no_result.setObjectName('no_result')
         self.no_result.setStyleSheet('QLabel#no_result {color: red}')
@@ -53,15 +62,29 @@ class MyWindow(QWidget):
         self.progress = QProgressBar(self)
         self.progress.setRange(0, 0)
         self.progress.hide()
+        self.loading_message = QLabel('검색 중... (검색 기간에 따라 시간이 소요될 수도 있습니다.)', self)
+        self.loading_message.hide()
 
-        search_result_label = QHBoxLayout()
-        search_result_label.addWidget(QLabel('검색 결과', self))
-        search_result_label.addWidget(self.progress)
-        search_result_label.addWidget(self.no_result)
-        search_result_label.addStretch()
+        search_result_label2 = QHBoxLayout()
+        search_result_label2.addWidget(self.progress)
+        search_result_label2.addWidget(self.loading_message)
+        search_result_label2.addWidget(self.no_result)
+        search_result_label2.addStretch()
+
+        self.post_list = []
+        self.result_list = QTableWidget(10, 5, self)
+        self.result_list.setHorizontalHeaderLabels(['게시 일자', '내용', '공감 수', '댓글 수', '카테고리'])
+        self.result_list.setColumnWidth(0, 100)
+        self.result_list.setColumnWidth(1, 250)
+        self.result_list.setColumnWidth(2, 50)
+        self.result_list.setColumnWidth(3, 50)
+        self.result_list.setColumnWidth(4, 100)
+
+        self.current_sort_method = lambda post: post.date
 
         search_result = QVBoxLayout()
-        search_result.addLayout(search_result_label)
+        search_result.addLayout(search_result_label1)
+        search_result.addLayout(search_result_label2)
         search_result.addWidget(self.result_list)
 
         search = QHBoxLayout()
@@ -70,7 +93,7 @@ class MyWindow(QWidget):
         search.setStretchFactor(search_result, 1)
         search.setStretchFactor(set_condition, 0)
 
-        self.resize(1200, 600)
+        self.resize(805, 600)
         self.center()
         self.setWindowTitle("SASA Bamboo Analyzer")
         self.setWindowIcon(QIcon('images/icon.png'))
@@ -79,8 +102,8 @@ class MyWindow(QWidget):
         # self.pushButton = QPushButton("차트그리기", self)
         # self.pushButton.clicked.connect(self.push_button_clicked)
 
-        self.fig = plt.Figure()
-        self.canvas = FigureCanvas(self.fig)
+        # self.fig = plt.Figure()
+        # self.canvas = FigureCanvas(self.fig)
 
         # left_layout = QVBoxLayout()
         # left_layout.addWidget(self.canvas)
@@ -125,17 +148,48 @@ class MyWindow(QWidget):
         else:
             self.period_alert.hide()
             self.no_result.hide()
-            self.result_list.clear()
             self.progress.show()
+            self.loading_message.show()
             self.post_crawling.start()
 
     @ pyqtSlot(list)
-    def update_search_result_list(self, result):
+    def update_search_result_list(self, post_list: list):
+        self.post_list = post_list
         self.progress.hide()
-        if not result:
+        self.loading_message.hide()
+        self.no_result.hide()
+        self.result_list.clearContents()
+        if not post_list:
             self.no_result.show()
         else:
-            self.result_list.addItems(result)
+            for index, post in enumerate(sorted(post_list, key=self.current_sort_method, reverse=True)):
+                date = QTableWidgetItem(post.date)
+                text = QTableWidgetItem(post.text)
+                like = QTableWidgetItem(str(post.like))
+                comment = QTableWidgetItem(str(post.comment))
+                category = QTableWidgetItem(', '.join(post.get_category()))
+
+                date.setTextAlignment(Qt.AlignCenter)
+                text.setTextAlignment(Qt.AlignCenter)
+                like.setTextAlignment(Qt.AlignCenter)
+                comment.setTextAlignment(Qt.AlignCenter)
+                category.setTextAlignment(Qt.AlignCenter)
+
+                self.result_list.setItem(index, 0, date)
+                self.result_list.setItem(index, 1, text)
+                self.result_list.setItem(index, 2, like)
+                self.result_list.setItem(index, 3, comment)
+                self.result_list.setItem(index, 4, category)
+
+    def set_sort_method(self, idx: int):
+        if idx == 0:
+            self.current_sort_method = lambda post: post.date
+        elif idx == 1:
+            self.current_sort_method = lambda post: post.like
+        else:
+            self.current_sort_method = lambda post: post.comment
+
+        self.update_search_result_list(self.post_list)
 
 
 class PostCrawl(QThread):
