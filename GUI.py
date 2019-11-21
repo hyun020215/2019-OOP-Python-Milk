@@ -79,6 +79,7 @@ class MyWindow(QWidget):
         self.result_list.setColumnWidth(2, 50)
         self.result_list.setColumnWidth(3, 50)
         self.result_list.setColumnWidth(4, 100)
+        self.result_list.cellDoubleClicked.connect(self._post_double_clicked)
 
         self.current_sort_method = lambda post: post.date
 
@@ -121,6 +122,11 @@ class MyWindow(QWidget):
         # layout.setStretchFactor(right_layout, 0)
 
         # self.setLayout(layout)
+
+        background = QImage('images/background.png')
+        palette = QPalette()
+        palette.setBrush(10, QBrush(background.scaled(QSize(805, 600))))
+        self.setPalette(palette)
 
         self.setLayout(search)
 
@@ -190,6 +196,10 @@ class MyWindow(QWidget):
             self.current_sort_method = lambda post: post.comment
 
         self.update_search_result_list(self.post_list)
+
+    def _post_double_clicked(self, row, col):
+        if col == 1:
+            print(self.result_list.currentItem().text())
 
 
 class PostCrawl(QThread):
