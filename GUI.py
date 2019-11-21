@@ -12,10 +12,6 @@ class MyWindow(QWidget):
         super().__init__()
 
         # set up UI
-        period_label = QHBoxLayout()
-        period_label.addWidget(QLabel('검색 기간', self))
-        period_label.addStretch()
-
         self.period_start = QDateEdit(self)
         self.period_end = QDateEdit(self)
 
@@ -37,11 +33,13 @@ class MyWindow(QWidget):
         self.period_alert.hide()
 
         set_condition = QVBoxLayout()
-        set_condition.addLayout(period_label)
+        set_condition.addWidget(QLabel('검색 기간', self))
         set_condition.addLayout(period)
         set_condition.addLayout(search_button_layout)
         set_condition.addWidget(self.period_alert)
         set_condition.addStretch()
+        set_condition.addWidget(QLabel('게시물 내용', self))
+
         self.post_crawling = PostCrawl(self)
         self.post_crawling.finished.connect(self.update_search_result_list)
 
