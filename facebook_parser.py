@@ -30,8 +30,6 @@ def timestamp_to_str(timestamp):
 
 
 def post_crawl(start, end):
-    from posts import Post
-    return [Post('2019.11.19', '급식 맛없음', 5, 3), Post('2019.11.20', '헤이 모두들 안녕 내가 누군지 아늬? 이하늬다! 이하늬다!', 3, 7)]
     driver = webdriver_maker()
     driver.get(TARGET_URL)
 
