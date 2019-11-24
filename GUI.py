@@ -14,31 +14,32 @@ class MyWindow(QWidget):
         # set up UI
         self.period_start = QDateEdit(self)
         self.period_end = QDateEdit(self)
+        search_button = QPushButton('검색', self)
+        search_button.clicked.connect(self.period_check)
 
         period = QHBoxLayout()
         period.addWidget(self.period_start)
         period.addWidget(QLabel('~', self))
         period.addWidget(self.period_end)
-
-        search_button = QPushButton('검색', self)
-        search_button.clicked.connect(self.period_check)
-
-        search_button_layout = QHBoxLayout()
-        search_button_layout.addStretch()
-        search_button_layout.addWidget(search_button)
+        period.addWidget(search_button)
 
         self.period_alert = QLabel('검색 기간이 잘못되었습니다.', self)
         self.period_alert.setObjectName('period_alert')
         self.period_alert.setStyleSheet('QLabel#period_alert {color: red}')
         self.period_alert.hide()
 
+        self.post_content = QTextBrowser()
+
+        show_post_content = QVBoxLayout()
+        show_post_content.addWidget(QLabel('게시물 내용', self))
+        show_post_content.addWidget(self.post_content)
+
         set_condition = QVBoxLayout()
         set_condition.addWidget(QLabel('검색 기간', self))
         set_condition.addLayout(period)
-        set_condition.addLayout(search_button_layout)
         set_condition.addWidget(self.period_alert)
         set_condition.addStretch()
-        set_condition.addWidget(QLabel('게시물 내용', self))
+        set_condition.addLayout(show_post_content)
 
         self.post_crawling = PostCrawl(self)
         self.post_crawling.finished.connect(self.update_search_result_list)
@@ -92,7 +93,7 @@ class MyWindow(QWidget):
         search.setStretchFactor(search_result, 1)
         search.setStretchFactor(set_condition, 0)
 
-        self.resize(805, 600)
+        self.resize(886, 600)
         self.center()
         self.setWindowTitle("SASA Bamboo Analyzer")
         self.setWindowIcon(QIcon('images/icon.png'))
@@ -197,7 +198,8 @@ class MyWindow(QWidget):
 
     def _post_double_clicked(self, row, col):
         if col == 1:
-            print(self.result_list.currentItem().text())
+            self.post_content.clear()
+            self.post_content.append(self.result_list.currentItem().text())
 
 
 class PostCrawl(QThread):
