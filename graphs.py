@@ -12,7 +12,7 @@ class Graph:
     # 막대그래프 그리기
     # 매개변수 - title: 그래프 제목, x: x축 값(분류 범주), y: y축 값(데이터 리스트 묶음, 최대 10개), x_label: x축 제목, y_label: y축 제목
     @ staticmethod
-    def bar_graph(title: str, x: list, y: dict, x_label: str, y_label: str) -> None:
+    def bar_graph(title: str, x: [int or str], y: {str: [int or float]}, x_label: str, y_label: str) -> None:
         # 그래프에 값 표시
         values = list(y.items())
         shift = 0.03 * values[0][1][0]
@@ -35,7 +35,7 @@ class Graph:
     # 꺾은선그래프 그리기
     # 매개변수 - title: 그래프 제목, x: x축 값(분류 범주), y: y축 값(데이터 리스트 묶음), x_label: x축 제목, y_label: y축 제목
     @ staticmethod
-    def line_graph(title: str, x: list, y: dict, x_label: str, y_label: str) -> None:
+    def line_graph(title: str, x: [int or float], y: {str: [int or float]}, x_label: str, y_label: str) -> None:
         # 그래프에 값 표시
         shift = 0.03 * list(y.items())[0][1][0]
         for label, value in y.items():
@@ -56,7 +56,7 @@ class Graph:
     # 원그래프 그리기
     # 매개변수 - title: 그래프 제목, data: 데이터 셋 {범주: 값} 묶음
     @ staticmethod
-    def pie_graph(title: str, data: dict) -> None:
+    def pie_graph(title: str, data: {str: int or float}) -> None:
         # 그래프에 값 표시
         plt.pie(list(data.values()), labels=list(map(lambda x: x + '\n' + str(data[x]), data.keys())),
                 startangle=90, shadow=True, explode=[0.1 if i == 0 else 0 for i in range(len(data))], autopct='%1.1f%%')
