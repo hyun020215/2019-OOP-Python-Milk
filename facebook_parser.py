@@ -71,12 +71,14 @@ def post_crawl(start, end):
 
         j = post.select('div')
         temp = []
-        print(timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip())))  # 날짜 추출
-        """
-        y = int(date[0:4])
-        m = int(date[5:6])
-        d = int(date[7:8])
+        date = timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip()))  # 날짜 추출
 
+        y = int(date[0:4])
+        print(y)
+        m = int(date[5:6])
+        print(m)
+        d = int(date[7:8])
+        print(d)
         # 시간대 걸러주기
     
         if y<start[0] or y>end[0] :
@@ -89,7 +91,7 @@ def post_crawl(start, end):
         temp.append(y)
         temp.append(m)
         temp.append(d) # 날짜 추가
-        """
+
         temp.append(j[16].getText().strip())  # 내용 추가
         try:
             for i in range(0,6): # 좋아요 종류 6가지 추가
