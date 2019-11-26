@@ -229,7 +229,7 @@ class PostCrawl(QThread):
         self.window = current_window
 
     def run(self) -> None:
-        result = fbps.post_crawl(self.window.period_start, self.window.period_end)
+        result = fbps.post_crawl(self.window.period_start.text(), self.window.period_end.text())
         self.finished.emit(result)
 
 
