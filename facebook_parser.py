@@ -37,6 +37,7 @@ def post_crawl(start, end):
     :param end: 크롤링을 끝내는 시간(end 까지)
     :return:
     """
+    from posts import Post
 
     start = list(map(int,start.split('.')))  # [2000,00,00] [년, 월, 일]
     end = list(map(int,end.split('.')))
@@ -60,7 +61,6 @@ def post_crawl(start, end):
         html = driver.page_source  # html 추출
         soup = bs4.BeautifulSoup(html, 'html.parser')  # bs4에게 부탁
         posts = soup.select('div.userContentWrapper')  # 게시물이 포함되어 있는 <div class='userContentWrapper'> 검색
-        print(posts)
         first_post_pass = True
 
         for post in posts:
@@ -85,16 +85,28 @@ def post_crawl(start, end):
             elif d<start[2] or d>end[2]:
                 break
 
-            temp.append(y)
-            temp.append(m)
-            temp.append(d) # 날짜 추가
+            temp.append(date) # 날짜 추가
 
             temp.append(j[16].getText().strip())  # 내용 추가
+            like = 0
             try:
-                for i in range(0,6): # 좋아요 종류 6가지 추가
-                    temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
+                # for i in range(0,6): # 좋아요 종류 6가지 추가
+                #     temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
+                for i in range(0,6):
+                    x = j[26].select('._1n9k')[i].contents[0].get('aria-label')
+                    like = like + int(x[4])
+            except IndexError: # 좋아요가 없을 때
+                pass
+            except ValueError: # 좋아요가 없을 때
+                pass
+            temp.append(like)
+
+            try : # 댓글 미완성 ㅠㅠ
+                comment = j[27].select('._4vn1')
             except IndexError:
                 pass
+
+            temp.append(3)
 
             inform.append(temp)
 
@@ -104,11 +116,19 @@ def post_crawl(start, end):
         if int(date[0:4]) <= start[0] and int(date[5:7]) <= start[1] and int(date[8:10]) < start[2]:
             break
 
-        return inform
+
+        # return inf
+
+    print(inform)
+    ans = list()
+    for i in inform:
+            ans.append(Post(i[0],i[1],i[2],i[3]))
+    print(ans)
+    return ans
 
     print('END')
 
     driver.quit()  # 드라이버 사용 종료. 이 코드가 없을 경우 프로세스가 남게 됨.
 
 
-post_crawl('2019.11.16','2019.11.26')
+post_crawl('2019.11.25','2019.11.26')
