@@ -7,7 +7,66 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import facebook_parser as fbps
 
 
-class MyWindow(QWidget):
+class MyWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setCentralWidget(MyWidget())
+
+        background = QImage('images/background.png')
+        palette = QPalette()
+        palette.setBrush(10, QBrush(background.scaled(QSize(805, 600))))
+        self.setPalette(palette)
+
+        self.resize(886, 600)
+        self.center()
+        self.setWindowTitle("SASA Bamboo Analyzer")
+        self.setWindowIcon(QIcon('images/icon.png'))
+
+        # self.lineEdit = QLineEdit()
+        # self.pushButton = QPushButton("차트그리기", self)
+        # self.pushButton.clicked.connect(self.push_button_clicked)
+
+        # self.fig = plt.Figure()
+        # self.canvas = FigureCanvas(self.fig)
+
+        # left_layout = QVBoxLayout()
+        # left_layout.addWidget(self.canvas)
+        #
+        # # Right Layout
+        # right_layout = QVBoxLayout()
+        # right_layout.addWidget(self.lineEdit)
+        # right_layout.addWidget(self.pushButton)
+        # right_layout.addStretch(1)
+        #
+        # layout = QHBoxLayout()
+        # layout.addLayout(left_layout)
+        # layout.addLayout(right_layout)
+        # layout.setStretchFactor(left_layout, 1)
+        # layout.setStretchFactor(right_layout, 0)
+
+        # self.setLayout(layout)
+
+    # def push_button_clicked(self):
+    #     print(self.lineEdit.text())
+
+    def center(self):
+        position = self.frameGeometry()
+        center_point = QDesktopWidget().availableGeometry().center()
+        position.moveCenter(center_point)
+        self.move(position.topLeft())
+
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, 'Message', '정말 프로그램을 종료하시겠습니까?',
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
+
+class MyWidget(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -95,58 +154,6 @@ class MyWindow(QWidget):
 
         self.setLayout(search)
 
-        background = QImage('images/background.png')
-        palette = QPalette()
-        palette.setBrush(10, QBrush(background.scaled(QSize(805, 600))))
-        self.setPalette(palette)
-
-        self.resize(886, 600)
-        self.center()
-        self.setWindowTitle("SASA Bamboo Analyzer")
-        self.setWindowIcon(QIcon('images/icon.png'))
-
-        # self.lineEdit = QLineEdit()
-        # self.pushButton = QPushButton("차트그리기", self)
-        # self.pushButton.clicked.connect(self.push_button_clicked)
-
-        # self.fig = plt.Figure()
-        # self.canvas = FigureCanvas(self.fig)
-
-        # left_layout = QVBoxLayout()
-        # left_layout.addWidget(self.canvas)
-        #
-        # # Right Layout
-        # right_layout = QVBoxLayout()
-        # right_layout.addWidget(self.lineEdit)
-        # right_layout.addWidget(self.pushButton)
-        # right_layout.addStretch(1)
-        #
-        # layout = QHBoxLayout()
-        # layout.addLayout(left_layout)
-        # layout.addLayout(right_layout)
-        # layout.setStretchFactor(left_layout, 1)
-        # layout.setStretchFactor(right_layout, 0)
-
-        # self.setLayout(layout)
-
-    # def push_button_clicked(self):
-    #     print(self.lineEdit.text())
-
-    def center(self):
-        position = self.frameGeometry()
-        center_point = QDesktopWidget().availableGeometry().center()
-        position.moveCenter(center_point)
-        self.move(position.topLeft())
-
-    def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Message', '정말 프로그램을 종료하시겠습니까?',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
-
     def period_check(self):
         if self.period_start.date() > self.period_end.date():
             self.period_alert.show()
@@ -205,7 +212,7 @@ class PostCrawl(QThread):
 
     finished = pyqtSignal(list)
 
-    def __init__(self, current_window: MyWindow):
+    def __init__(self, current_window: MyWidget):
         QThread.__init__(self)
         self.window = current_window
 
