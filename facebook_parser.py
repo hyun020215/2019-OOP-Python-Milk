@@ -4,6 +4,7 @@ from datetime import datetime
 
 TARGET_URL = 'https://www.facebook.com/SASABamboo/'  # 세종과학예술영재학교 대나무숲 페이지 주소
 
+
 def webdriver_maker():
     """
     headless 브라우저(창이 안뜨는)를 위해서 설정.
@@ -16,9 +17,9 @@ def webdriver_maker():
     options.add_argument("disable-gpu")
     options.add_argument("lang=ko_KR")
 
-    #return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
-    #                        options=options)
-    return webdriver.Chrome('C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe',options=options)
+    return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
+                            options=options)
+    # return webdriver.Chrome('C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe',options=options)
 
 
 def timestamp_to_str(timestamp):
@@ -39,8 +40,8 @@ def post_crawl(start, end):
     """
     from posts import Post
 
-    start = list(map(int,start.split('.')))  # [2000,00,00] [년, 월, 일]
-    end = list(map(int,end.split('.')))
+    start = list(map(int, start.split('-')))  # [2000-00-00] [년, 월, 일]
+    end = list(map(int, end.split('-')))
     inform = []  # 게시글 정보를 담을 리스트
     print(start)
     print(end)
@@ -124,11 +125,13 @@ def post_crawl(start, end):
     for i in inform:
             ans.append(Post(i[0],i[1],i[2],i[3]))
     print(ans)
-    return ans
 
     print('END')
-
     driver.quit()  # 드라이버 사용 종료. 이 코드가 없을 경우 프로세스가 남게 됨.
 
+    return ans
+#    return [Post('2019.11.19', '급식 맛없음', 5, 3), Post('2019.11.20', '헤이 모두들 안녕 내가 누군지 아늬? 이하늬다! 이하늬다!', 3, 7)]
 
-post_crawl('2019.11.25','2019.11.26')
+
+if __name__ == '__main__':
+    print(post_crawl('2019.11.25', '2019.11.26'))
