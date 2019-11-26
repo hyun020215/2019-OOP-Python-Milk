@@ -11,14 +11,26 @@ class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        exit_action = QAction(QIcon('images/exit.png'), 'Exit', self)
+        exit_action.setShortcut('Ctrl+Q')
+        exit_action.setStatusTip('Exit application')
+        exit_action.triggered.connect(qApp.closeAllWindows)
+
+        self.statusBar()
+
+        menubar = self.menuBar()
+        menubar.setNativeMenuBar(False)
+        file_menu = menubar.addMenu('&File')
+        file_menu.addAction(exit_action)
+
         self.setCentralWidget(MyWidget())
 
         background = QImage('images/background.png')
         palette = QPalette()
-        palette.setBrush(10, QBrush(background.scaled(QSize(805, 600))))
+        palette.setBrush(10, QBrush(background.scaled(QSize(883, 600))))
         self.setPalette(palette)
 
-        self.resize(886, 600)
+        self.resize(883, 600)
         self.center()
         self.setWindowTitle("SASA Bamboo Analyzer")
         self.setWindowIcon(QIcon('images/icon.png'))
