@@ -4,7 +4,6 @@ from datetime import datetime
 
 TARGET_URL = 'https://www.facebook.com/SASABamboo/'  # 세종과학예술영재학교 대나무숲 페이지 주소
 
-
 def webdriver_maker():
     """
     headless 브라우저(창이 안뜨는)를 위해서 설정.
@@ -105,7 +104,8 @@ def post_crawl(start, end):
         if int(date[0:4]) <= start[0] and int(date[5:7]) <= start[1] and int(date[8:10]) < start[2]:
             break
 
-    print(inform)
+        return inform
+
     print('END')
 
     driver.quit()  # 드라이버 사용 종료. 이 코드가 없을 경우 프로세스가 남게 됨.
