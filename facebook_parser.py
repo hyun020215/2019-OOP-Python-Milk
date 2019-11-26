@@ -49,57 +49,61 @@ def post_crawl(start, end):
     driver.get(TARGET_URL)
 
     # 페이지 스크롤링 코드
-    while driver.find_element_by_tag_name('div'):
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        Divs = driver.find_element_by_tag_name('div').text
-        if 'End of Results' in Divs:  # 영어 버전에서 작동하는 코드
-            print('end')
+    while True:
+        while driver.find_element_by_tag_name('div'):
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            Divs = driver.find_element_by_tag_name('div').text
+            if 'End of Results' in Divs:  # 영어 버전에서 작동하는 코드
+                print('end')
+                break
             break
-        break
 
-    html = driver.page_source  # html 추출
-    soup = bs4.BeautifulSoup(html, 'html.parser')  # bs4에게 부탁
-    posts = soup.select('div.userContentWrapper')  # 게시물이 포함되어 있는 <div class='userContentWrapper'> 검색
-    print(posts)
-    first_post_pass = True
+        html = driver.page_source  # html 추출
+        soup = bs4.BeautifulSoup(html, 'html.parser')  # bs4에게 부탁
+        posts = soup.select('div.userContentWrapper')  # 게시물이 포함되어 있는 <div class='userContentWrapper'> 검색
+        print(posts)
+        first_post_pass = True
 
-    for post in posts:
-        # 첫 포스트 제외 | 오래된 포스트일 가능성이 높음.
-        if first_post_pass is True:
-            first_post_pass = False
-            continue
+        for post in posts:
+            # 첫 포스트 제외 | 오래된 포스트일 가능성이 높음.
+            if first_post_pass is True:
+                first_post_pass = False
+                continue
 
-        j = post.select('div')
+            j = post.select('div')
+            temp = []
+            date = timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip()))  # 날짜 추출
+
+            y = int(date[0:4])
+            m = int(date[5:7])
+            d = int(date[8:10])
+            # 시간대 걸러주기
+
+            if y<start[0] or y>end[0] :
+                break
+            elif m<start[1] or m>end[1]:
+                break
+            elif d<start[2] or d>end[2]:
+                break
+
+            temp.append(y)
+            temp.append(m)
+            temp.append(d) # 날짜 추가
+
+            temp.append(j[16].getText().strip())  # 내용 추가
+            try:
+                for i in range(0,6): # 좋아요 종류 6가지 추가
+                    temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
+            except IndexError:
+                pass
+
+            inform.append(temp)
+
+        filter = posts[-1].select('div')  # 시간대 걸러주기
         temp = []
-        date = timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip()))  # 날짜 추출
-
-        y = int(date[0:4])
-        print(y)
-        m = int(date[5:6])
-        print(m)
-        d = int(date[7:8])
-        print(d)
-        # 시간대 걸러주기
-    
-        if y<start[0] or y>end[0] :
+        date = timestamp_to_str(int(filter[15].select('abbr')[0].get('data-utime').strip()))
+        if int(date[0:4]) <= start[0] and int(date[5:7]) <= start[1] and int(date[8:10]) < start[2]:
             break
-        elif m<start[1] or m>end[1]:
-            break
-        elif d<start[2] or d>end[2]:
-            break
-    
-        temp.append(y)
-        temp.append(m)
-        temp.append(d) # 날짜 추가
-
-        temp.append(j[16].getText().strip())  # 내용 추가
-        try:
-            for i in range(0,6): # 좋아요 종류 6가지 추가
-                temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
-        except IndexError:
-            pass
-
-        inform.append(temp)
 
     print(inform)
     print('END')
@@ -107,4 +111,4 @@ def post_crawl(start, end):
     driver.quit()  # 드라이버 사용 종료. 이 코드가 없을 경우 프로세스가 남게 됨.
 
 
-post_crawl('2019.11.16','2019.11.20')
+post_crawl('2019.11.16','2019.11.26')
