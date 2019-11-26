@@ -93,6 +93,13 @@ class MyWindow(QWidget):
         search.setStretchFactor(search_result, 1)
         search.setStretchFactor(set_condition, 0)
 
+        self.setLayout(search)
+
+        background = QImage('images/background.png')
+        palette = QPalette()
+        palette.setBrush(10, QBrush(background.scaled(QSize(805, 600))))
+        self.setPalette(palette)
+
         self.resize(886, 600)
         self.center()
         self.setWindowTitle("SASA Bamboo Analyzer")
@@ -121,13 +128,6 @@ class MyWindow(QWidget):
         # layout.setStretchFactor(right_layout, 0)
 
         # self.setLayout(layout)
-
-        background = QImage('images/background.png')
-        palette = QPalette()
-        palette.setBrush(10, QBrush(background.scaled(QSize(805, 600))))
-        self.setPalette(palette)
-
-        self.setLayout(search)
 
     # def push_button_clicked(self):
     #     print(self.lineEdit.text())
@@ -198,8 +198,7 @@ class MyWindow(QWidget):
 
     def _post_double_clicked(self, row, col):
         if col == 1:
-            self.post_content.clear()
-            self.post_content.append(self.result_list.currentItem().text())
+            self.post_content.setText(self.result_list.currentItem().text())
 
 
 class PostCrawl(QThread):
