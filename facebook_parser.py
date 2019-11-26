@@ -53,8 +53,8 @@ def post_crawl(start, end):
     while True:
         while driver.find_element_by_tag_name('div'):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            Divs = driver.find_element_by_tag_name('div').text
-            if 'End of Results' in Divs:  # 영어 버전에서 작동하는 코드
+            divs = driver.find_element_by_tag_name('div').text
+            if 'End of Results' in divs:  # 영어 버전에서 작동하는 코드
                 print('end')
                 break
             break
@@ -79,30 +79,30 @@ def post_crawl(start, end):
             d = int(date[8:10])
             # 시간대 걸러주기
 
-            if y<start[0] or y>end[0] :
+            if y < start[0] or y > end[0]:
                 break
-            elif m<start[1] or m>end[1]:
+            elif m < start[1] or m > end[1]:
                 break
-            elif d<start[2] or d>end[2]:
+            elif d < start[2] or d > end[2]:
                 break
 
-            temp.append(date) # 날짜 추가
+            temp.append(date)  # 날짜 추가
 
             temp.append(j[16].getText().strip())  # 내용 추가
             like = 0
             try:
                 # for i in range(0,6): # 좋아요 종류 6가지 추가
                 #     temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
-                for i in range(0,6):
+                for i in range(0, 6):
                     x = j[26].select('._1n9k')[i].contents[0].get('aria-label')
                     like = like + int(x[4])
-            except IndexError: # 좋아요가 없을 때
+            except IndexError:  # 좋아요가 없을 때
                 pass
-            except ValueError: # 좋아요가 없을 때
+            except ValueError:  # 좋아요가 없을 때
                 pass
             temp.append(like)
 
-            try : # 댓글 미완성 ㅠㅠ
+            try:  # 댓글 미완성 ㅠㅠ
                 comment = j[27].select('._4vn1')
             except IndexError:
                 pass
@@ -111,27 +111,22 @@ def post_crawl(start, end):
 
             inform.append(temp)
 
-        filter = posts[-1].select('div')  # 시간대 걸러주기
-        temp = []
-        date = timestamp_to_str(int(filter[15].select('abbr')[0].get('data-utime').strip()))
+        time_filter = posts[-1].select('div')  # 시간대 걸러주기
+        date = timestamp_to_str(int(time_filter[15].select('abbr')[0].get('data-utime').strip()))
         if int(date[0:4]) <= start[0] and int(date[5:7]) <= start[1] and int(date[8:10]) < start[2]:
             break
-
-
-        # return inf
 
     print(inform)
     ans = list()
     for i in inform:
-            ans.append(Post(i[0],i[1],i[2],i[3]))
+        ans.append(Post(i[0], i[1], i[2], i[3]))
     print(ans)
 
     print('END')
     driver.quit()  # 드라이버 사용 종료. 이 코드가 없을 경우 프로세스가 남게 됨.
 
     return ans
-#    return [Post('2019.11.19', '급식 맛없음', 5, 3), Post('2019.11.20', '헤이 모두들 안녕 내가 누군지 아늬? 이하늬다! 이하늬다!', 3, 7)]
 
 
 if __name__ == '__main__':
-    print(post_crawl('2019.11.25', '2019.11.26'))
+    post_crawl('2019.11.25', '2019.11.26')
