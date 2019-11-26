@@ -197,7 +197,7 @@ class MyWindow(QWidget):
         self.update_search_result_list(self.post_list)
 
     def _post_double_clicked(self, row, col):
-        if col == 1:
+        if col == 1 and self.result_list.currentItem():
             self.post_content.setText(self.result_list.currentItem().text())
 
 
