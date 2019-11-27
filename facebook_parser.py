@@ -1,9 +1,10 @@
+# 한번 더 점검을 해봐야겠다
+
 import bs4
 from selenium import webdriver
 from datetime import datetime
 
 TARGET_URL = 'https://www.facebook.com/SASABamboo/'  # 세종과학예술영재학교 대나무숲 페이지 주소
-
 
 def webdriver_maker():
     """
@@ -17,9 +18,9 @@ def webdriver_maker():
     options.add_argument("disable-gpu")
     options.add_argument("lang=ko_KR")
 
-    return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
-                            options=options)
-    # return webdriver.Chrome('C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe',options=options)
+    #return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
+    #                        options=options)
+    return webdriver.Chrome('C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe',options=options)
 
 
 def timestamp_to_str(timestamp):
@@ -40,8 +41,8 @@ def post_crawl(start, end):
     """
     from posts import Post
 
-    start = list(map(int, start.split('-')))  # [2000-00-00] [년, 월, 일]
-    end = list(map(int, end.split('-')))
+    start = list(map(int,start.split('-')))  # [2000,00,00] [년, 월, 일]
+    end = list(map(int,end.split('-')))
     inform = []  # 게시글 정보를 담을 리스트
     print(start)
     print(end)
@@ -102,12 +103,12 @@ def post_crawl(start, end):
                 pass
             temp.append(like)
 
-            try : # 댓글 미완성 ㅠㅠ
-                comment = j[27].select('._4vn1')
-            except IndexError:
-                pass
+            comment = j[25].select('._4vn2')
+            try:
+                temp.append(int(str(comment)[-14]))
+            except IndexError: # comment 가 비어있다
+                temp.append(0)
 
-            temp.append(3)
 
             inform.append(temp)
 
@@ -118,20 +119,16 @@ def post_crawl(start, end):
             break
 
 
-        # return inf
 
     print(inform)
     ans = list()
     for i in inform:
             ans.append(Post(i[0],i[1],i[2],i[3]))
     print(ans)
+    return ans
 
     print('END')
+
     driver.quit()  # 드라이버 사용 종료. 이 코드가 없을 경우 프로세스가 남게 됨.
 
-    return ans
-#    return [Post('2019.11.19', '급식 맛없음', 5, 3), Post('2019.11.20', '헤이 모두들 안녕 내가 누군지 아늬? 이하늬다! 이하늬다!', 3, 7)]
 
-
-if __name__ == '__main__':
-    print(post_crawl('2019.11.25', '2019.11.26'))
