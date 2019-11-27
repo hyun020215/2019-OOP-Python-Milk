@@ -166,15 +166,53 @@ class GraphWindow(QDialog, Graph):
     def __init__(self, posts):
         super().__init__()
 
-        select_graph_type = QGroupBox()
+        draw_line = QRadioButton('시간대별 특정 주제 증가 추이(꺾은선 그래프)')
+        draw_bar = QRadioButton('주제별 게시물 수(막대 그래프)')
+        draw_pie = QRadioButton('주제별 게시물 비율(원 그래프)')
+
+        draw_line.clicked.connect(self.show_line_widget)
+        draw_bar.clicked.connect(self.show_bar_widget)
+        draw_pie.clicked.connect(self.show_pie_widget)
+
+        line_detail = QVBoxLayout()
+        select_category = QGroupBox('카테고리')
+        select_category_layout = QVBoxLayout()
+        select_category_layout.addWidget(QCheckBox('안녕'))
+        select_category.setLayout(select_category_layout)
+        line_detail.addWidget(select_category)
+        self.line_widget = QGroupBox('그래프 세부사항')
+        self.line_widget.setLayout(line_detail)
+        self.line_widget.hide()
+
+        bar_detail = QVBoxLayout()
+        self.bar_widget = QGroupBox('그래프 세부사항')
+        self.bar_widget.setLayout(bar_detail)
+        self.bar_widget.hide()
+
+        pie_detail = QVBoxLayout()
+        self.pie_widget = QGroupBox('그래프 세부사항')
+        self.pie_widget.setLayout(pie_detail)
+        self.pie_widget.hide()
+
+        graph_type = QVBoxLayout()
+        graph_type.addWidget(draw_line)
+        graph_type.addWidget(draw_bar)
+        graph_type.addWidget(draw_pie)
+
+        select_graph_type = QGroupBox('그래프 종류')
+        select_graph_type.setLayout(graph_type)
 
         graph_setting = QVBoxLayout()
-        graph_setting.addWidget(QLabel('그래프 종류', self))
         graph_setting.addWidget(select_graph_type)
+        graph_setting.addWidget(self.line_widget)
+        graph_setting.addWidget(self.bar_widget)
+        graph_setting.addWidget(self.pie_widget)
+        graph_setting.addStretch()
 
         graph = self.line_graph('test', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]}, 'x-axis', 'y-axis')
 
         layout = QHBoxLayout()
+        layout.addStretch()
         layout.addWidget(graph)
         layout.addLayout(graph_setting)
         self.setLayout(layout)
@@ -186,6 +224,21 @@ class GraphWindow(QDialog, Graph):
 
         self.setWindowTitle("자료 시각화")
         self.setWindowIcon(QIcon('images/icon.png'))
+
+    def show_line_widget(self):
+        self.line_widget.show()
+        self.bar_widget.hide()
+        self.pie_widget.hide()
+
+    def show_bar_widget(self):
+        self.line_widget.hide()
+        self.bar_widget.show()
+        self.pie_widget.hide()
+
+    def show_pie_widget(self):
+        self.line_widget.hide()
+        self.bar_widget.hide()
+        self.pie_widget.show()
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message', '창을 닫으시겠습니까?',
