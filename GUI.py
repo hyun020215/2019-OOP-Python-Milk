@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from upgrade_window import *
 
 import facebook_parser as fbps
-from graphs import Graph
+from graphs import *
 
 
 class MainWindow(QMainWindow, WindowWithExtraFunctions):
@@ -237,12 +237,15 @@ class PostCrawl(QThread):
         self.finished.emit(result)
 
 
-class GraphWindow(QDialog, WindowWithExtraFunctions, Graph):
+class GraphWindow(QDialog, WindowWithExtraFunctions):
     def __init__(self, posts):
         super().__init__()
 
+        # 여기에 posts 주제별로 분류하는 코드 있어야 합니다
+        self.posts = posts
+
         # set up UI
-        draw_line = QRadioButton('시간대별 특정 주제 증가 추이(꺾은선 그래프)')
+        draw_line = QRadioButton('시간대별 게시물 증가 추이(꺾은선 그래프)')
         draw_bar = QRadioButton('주제별 게시물 수(막대 그래프)')
         draw_pie = QRadioButton('주제별 게시물 비율(원 그래프)')
 
@@ -263,11 +266,18 @@ class GraphWindow(QDialog, WindowWithExtraFunctions, Graph):
         self.select_category = QGroupBox('카테고리')
         select_category_layout = QVBoxLayout()
         select_category_layout.addWidget(QCheckBox('안녕'))
+        select_category_layout.addWidget(QCheckBox('반가워'))
         self.select_category.setLayout(select_category_layout)
 
         day = QRadioButton('1일')
         week = QRadioButton('1주')
         month = QRadioButton('1개월')
+
+        day.clicked.connect(self.set_interval_day)
+        week.clicked.connect(self.set_interval_week)
+        month.clicked.connect(self.set_interval_month)
+        day.setChecked(True)
+        self.interval = 'day'
 
         self.set_interval = QGroupBox('시간 간격')
         set_interval_layout = QVBoxLayout()
@@ -320,6 +330,15 @@ class GraphWindow(QDialog, WindowWithExtraFunctions, Graph):
         self.select_category.hide()
         self.set_interval.hide()
 
+    def set_interval_day(self):
+        self.interval = 'day'
+
+    def set_interval_week(self):
+        self.interval = 'week'
+
+    def set_interval_month(self):
+        self.interval = 'month'
+
     def draw_graph(self):
         if self.graph_already_exists:
             self.main_layout.removeWidget(self.graph)
@@ -327,25 +346,23 @@ class GraphWindow(QDialog, WindowWithExtraFunctions, Graph):
             self.graph_already_exists = True
 
         if self.graph_type == 'line':
-            self.graph = self.line_graph('TEst', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]},
-                                         'x-axis', 'y-axis')
+            # timestamps = []
+            # if self.interval == 'day':
+            #
+            # elif self.interval == 'week':
+            #
+            # else:
+            #
+            self.graph = line_graph('시간대별 게시물 증가 추이', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]},
+                                    'x-axis', 'y-axis')
         elif self.graph_type == 'bar':
-            self.graph = self.bar_graph('TEst', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]},
-                                        'x-axis', 'y-axis')
+            self.graph = bar_graph('주제별 게시물 수', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]},
+                                   'x-axis', 'y-axis')
         else:
-            self.graph = self.pie_graph('TEst', {'y1': 3, 'y2': 4, 'y3': 5})
+            self.graph = pie_graph('주제별 게시물 비율', {'y1': 3, 'y2': 4, 'y3': 5})
         self.main_layout.insertWidget(0, self.graph)
         self.resize(1000, 450)
         self.center()
-
-    def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Message', '창을 닫으시겠습니까?',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
 
 
 if __name__ == "__main__":
