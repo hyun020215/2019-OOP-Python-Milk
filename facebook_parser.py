@@ -1,6 +1,7 @@
 import bs4
 from selenium import webdriver
 from datetime import datetime
+from posts import Post
 
 TARGET_URL = 'https://www.facebook.com/SASABamboo/'  # 세종과학예술영재학교 대나무숲 페이지 주소
 CHROME_DRIVER_PATH = 'D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe'
@@ -38,7 +39,7 @@ def post_crawl(start, end):
     :param end: 크롤링을 끝내는 시간(end 까지)
     :return:
     """
-    from posts import Post
+    # return [Post('2019.11.11', '빼빼로데이', 5, 3), Post('2019.11.27', '입시 급식', 7, 1)]
 
     start = list(map(int, start.split('-')))  # [2000-00-00] [년, 월, 일]
     end = list(map(int, end.split('-')))
