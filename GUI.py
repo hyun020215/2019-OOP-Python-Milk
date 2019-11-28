@@ -289,6 +289,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions, Graph):
 
         self.graph_already_exists = False
         self.graph = None
+        self.graph_type = 'line'
 
         graph_setting = QVBoxLayout()
         graph_setting.addWidget(select_graph_type)
@@ -305,14 +306,17 @@ class GraphWindow(QDialog, WindowWithExtraFunctions, Graph):
         self.center()
 
     def show_line_widget(self):
+        self.graph_type = 'line'
         self.select_category.show()
         self.set_interval.show()
 
     def show_bar_widget(self):
+        self.graph_type = 'bar'
         self.select_category.show()
         self.set_interval.hide()
 
     def show_pie_widget(self):
+        self.graph_type = 'pie'
         self.select_category.hide()
         self.set_interval.hide()
 
@@ -321,7 +325,15 @@ class GraphWindow(QDialog, WindowWithExtraFunctions, Graph):
             self.main_layout.removeWidget(self.graph)
         else:
             self.graph_already_exists = True
-        self.graph = self.line_graph('TEst', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]}, 'x-axis', 'y-axis')
+
+        if self.graph_type == 'line':
+            self.graph = self.line_graph('TEst', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]},
+                                         'x-axis', 'y-axis')
+        elif self.graph_type == 'bar':
+            self.graph = self.bar_graph('TEst', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]},
+                                        'x-axis', 'y-axis')
+        else:
+            self.graph = self.pie_graph('TEst', {'y1': 3, 'y2': 4, 'y3': 5})
         self.main_layout.insertWidget(0, self.graph)
         self.resize(1000, 450)
         self.center()
