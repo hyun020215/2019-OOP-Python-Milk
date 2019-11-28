@@ -241,8 +241,13 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
     def __init__(self, posts):
         super().__init__()
 
-        # 여기에 posts 주제별로 분류하는 코드 있어야 합니다
         self.posts = posts
+        self.categorized_posts = {'기숙사': [], '급식': [], '입시': [], '음악실': [], '신입생': [], '건의사항': [],
+                                  '본관': [], '청결': [], '종소리': [], '운동장': []}
+        for post in posts:
+            for category in self.categorized_posts.keys():
+                if category in post.get_category():
+                    self.categorized_posts[category].append(post)
 
         # set up UI
         draw_line = QRadioButton('시간대별 게시물 증가 추이(꺾은선 그래프)')
@@ -277,7 +282,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         week.clicked.connect(self.set_interval_week)
         month.clicked.connect(self.set_interval_month)
         day.setChecked(True)
-        self.interval = 'day'
+        self.interval = slice(10)
 
         self.set_interval = QGroupBox('시간 간격')
         set_interval_layout = QVBoxLayout()
@@ -331,13 +336,13 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         self.set_interval.hide()
 
     def set_interval_day(self):
-        self.interval = 'day'
+        self.interval = slice(10)
 
     def set_interval_week(self):
-        self.interval = 'week'
+        self.interval = slice(0, 7)
 
     def set_interval_month(self):
-        self.interval = 'month'
+        self.interval = slice(0, 4)
 
     def draw_graph(self):
         if self.graph_already_exists:
@@ -346,15 +351,17 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
             self.graph_already_exists = True
 
         if self.graph_type == 'line':
-            # timestamps = []
-            # if self.interval == 'day':
-            #
-            # elif self.interval == 'week':
-            #
-            # else:
-            #
-            self.graph = line_graph('시간대별 게시물 증가 추이', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]},
-                                    'x-axis', 'y-axis')
+            x = []
+            y = {}
+            for post in sorted(self.posts, key=lambda post: post.date[self.interval]):
+                if post.date[self.interval] not in x:
+                    x.append(post.date[self.interval])
+            for category in self.categorized_posts.keys():
+                y[category] = [0] * len(x)
+            for category, posts in self.categorized_posts.items():
+                for post in posts:
+                    y[category][x.index(post.date[self.interval])] += 1
+            self.graph = line_graph('시간대별 게시물 증가 추이', x, y, '날짜', '게시물 수')
         elif self.graph_type == 'bar':
             self.graph = bar_graph('주제별 게시물 수', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]},
                                    'x-axis', 'y-axis')
