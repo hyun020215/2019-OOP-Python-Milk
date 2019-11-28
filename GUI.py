@@ -1,11 +1,84 @@
 import sys
 
 from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from upgrade_window import *
 
 import facebook_parser as fbps
 from graphs import Graph
+
+
+class MainWindow(QMainWindow, WindowWithExtraFunctions):
+    def __init__(self):
+        super().__init__()
+
+        exit_action = QAction(QIcon('images/exit.png'), '종료하기', self)
+        exit_action.setShortcut('Ctrl+Q')
+        exit_action.setStatusTip('프로그램을 종료합니다.')
+        exit_action.triggered.connect(qApp.closeAllWindows)
+
+        print_action = QAction(QIcon('images/print.png'), '출력하기', self)
+        print_action.setShortcut('Ctrl+P')
+        print_action.setStatusTip('검색 결과를 출력합니다.')
+        print_action.triggered.connect(self._print_result)
+
+        save_action = QAction(QIcon('images/save.png'), '저장하기', self)
+        save_action.setShortcut('Ctrl+S')
+        save_action.setStatusTip('검색 결과를 저장합니다.')
+        save_action.triggered.connect(self._save_result)
+
+        draw_graph = QAction(QIcon('images/graph.png'), '그래프', self)
+        draw_graph.setShortcut('Ctrl+G')
+        draw_graph.setStatusTip('검색 자료를 바탕으로 그래프를 그립니다.')
+        draw_graph.triggered.connect(self._open_graph_window)
+
+        edit_keyword = QAction(QIcon('images/edit.png'), '키워드 편집', self)
+        edit_keyword.setShortcut('Ctrl+K')
+        edit_keyword.setStatusTip('검색된 게시물을 분류하는 키워드를 편집합니다.')
+        edit_keyword.triggered.connect(self._open_keyword_window)
+
+        menubar = self.menuBar()
+        menubar.setNativeMenuBar(False)
+
+        file_menu = menubar.addMenu('파일')
+        file_menu.addAction(exit_action)
+        file_menu.addAction(print_action)
+        file_menu.addAction(save_action)
+
+        statistics_menu = menubar.addMenu('통계')
+        statistics_menu.addAction(draw_graph)
+
+        settings_menu = menubar.addMenu('설정')
+        settings_menu.addAction(edit_keyword)
+
+        self.post_search_window = MainWidget()
+        self.setCentralWidget(self.post_search_window)
+
+        self.statusBar()
+
+        self.resize(883, 600)
+        self.center()
+        self.setWindowTitle("SASA 대나무숲 분석기")
+
+    def _print_result(self):
+        if not self.post_search_window.post_list:
+            QMessageBox.information(self, 'Message', '출력할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
+        else:
+            pass
+
+    def _save_result(self):
+        if not self.post_search_window.post_list:
+            QMessageBox.information(self, 'Message', '저장할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
+        else:
+            pass
+
+    def _open_graph_window(self):
+        if not self.post_search_window.post_list:
+            QMessageBox.information(self, 'Message', '그래프를 그릴 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
+        else:
+            GraphWindow(self.post_search_window.post_list).exec_()
+
+    def _open_keyword_window(self, event):
+        pass
 
 
 class MainWidget(QWidget):
@@ -47,7 +120,7 @@ class MainWidget(QWidget):
 
         sort_by = QComboBox(self)
         sort_by.addItems(['게시 일자', '공감 수', '댓글 수'])
-        sort_by.currentIndexChanged.connect(self.set_sort_method)
+        sort_by.currentIndexChanged.connect(self._set_sort_method)
 
         search_result_label1 = QHBoxLayout()
         search_result_label1.addWidget(QLabel('검색 결과', self))
@@ -136,7 +209,7 @@ class MainWidget(QWidget):
                 self.result_list.setItem(index, 3, comment)
                 self.result_list.setItem(index, 4, category)
 
-    def set_sort_method(self, idx: int):
+    def _set_sort_method(self, idx: int):
         if idx == 0:
             self.current_sort_method = lambda post: post.date
         elif idx == 1:
@@ -164,10 +237,11 @@ class PostCrawl(QThread):
         self.finished.emit(result)
 
 
-class GraphWindow(QDialog, Graph):
+class GraphWindow(QDialog, WindowWithExtraFunctions, Graph):
     def __init__(self, posts):
         super().__init__()
 
+        # set up UI
         draw_line = QRadioButton('시간대별 특정 주제 증가 추이(꺾은선 그래프)')
         draw_bar = QRadioButton('주제별 게시물 수(막대 그래프)')
         draw_pie = QRadioButton('주제별 게시물 비율(원 그래프)')
@@ -227,13 +301,8 @@ class GraphWindow(QDialog, Graph):
         self.setLayout(self.main_layout)
         self.main_layout.setStretchFactor(graph_setting, 0)
 
-        background = QImage('images/background.png')
-        palette = QPalette()
-        palette.setBrush(10, QBrush(background.scaled(self.size())))
-        self.setPalette(palette)
-
         self.setWindowTitle("자료 시각화")
-        self.setWindowIcon(QIcon('images/icon.png'))
+        self.center()
 
     def show_line_widget(self):
         self.select_category.show()
@@ -257,12 +326,6 @@ class GraphWindow(QDialog, Graph):
         self.resize(1000, 450)
         self.center()
 
-    def center(self):
-        position = self.frameGeometry()
-        center_point = QDesktopWidget().availableGeometry().center()
-        position.moveCenter(center_point)
-        self.move(position.topLeft())
-
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message', '창을 닫으시겠습니까?',
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -273,130 +336,8 @@ class GraphWindow(QDialog, Graph):
             event.ignore()
 
 
-class MyWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-
-        exit_action = QAction(QIcon('images/exit.png'), '종료하기', self)
-        exit_action.setShortcut('Ctrl+Q')
-        exit_action.setStatusTip('프로그램을 종료합니다.')
-        exit_action.triggered.connect(qApp.closeAllWindows)
-
-        print_action = QAction(QIcon('images/print.png'), '출력하기', self)
-        print_action.setShortcut('Ctrl+P')
-        print_action.setStatusTip('검색 결과를 출력합니다.')
-        print_action.triggered.connect(self._print_result)
-
-        save_action = QAction(QIcon('images/save.png'), '저장하기', self)
-        save_action.setShortcut('Ctrl+S')
-        save_action.setStatusTip('검색 결과를 저장합니다.')
-        save_action.triggered.connect(self._save_result)
-
-        draw_graph = QAction(QIcon('images/graph.png'), '그래프', self)
-        draw_graph.setShortcut('Ctrl+G')
-        draw_graph.setStatusTip('검색 자료를 바탕으로 그래프를 그립니다.')
-        draw_graph.triggered.connect(self._open_graph_window)
-
-        edit_keyword = QAction(QIcon('images/edit.png'), '키워드 편집', self)
-        edit_keyword.setShortcut('Ctrl+K')
-        edit_keyword.setStatusTip('검색된 게시물을 분류하는 키워드를 편집합니다.')
-        edit_keyword.triggered.connect(self._open_keyword_window)
-
-        menubar = self.menuBar()
-        menubar.setNativeMenuBar(False)
-
-        file_menu = menubar.addMenu('파일')
-        file_menu.addAction(exit_action)
-        file_menu.addAction(print_action)
-        file_menu.addAction(save_action)
-
-        statistics_menu = menubar.addMenu('통계')
-        statistics_menu.addAction(draw_graph)
-
-        settings_menu = menubar.addMenu('설정')
-        settings_menu.addAction(edit_keyword)
-
-        self.post_search_window = MainWidget()
-        self.setCentralWidget(self.post_search_window)
-
-        self.statusBar()
-
-        background = QImage('images/background.png')
-        palette = QPalette()
-        palette.setBrush(10, QBrush(background.scaled(self.size())))
-        self.setPalette(palette)
-
-        self.resize(883, 600)
-        self.center()
-        self.setWindowTitle("SASA 대나무숲 분석기")
-        self.setWindowIcon(QIcon('images/icon.png'))
-
-        # self.lineEdit = QLineEdit()
-        # self.pushButton = QPushButton("차트그리기", self)
-        # self.pushButton.clicked.connect(self.push_button_clicked)
-
-        # self.fig = plt.Figure()
-        # self.canvas = FigureCanvas(self.fig)
-
-        # left_layout = QVBoxLayout()
-        # left_layout.addWidget(self.canvas)
-        #
-        # # Right Layout
-        # right_layout = QVBoxLayout()
-        # right_layout.addWidget(self.lineEdit)
-        # right_layout.addWidget(self.pushButton)
-        # right_layout.addStretch(1)
-        #
-        # layout = QHBoxLayout()
-        # layout.addLayout(left_layout)
-        # layout.addLayout(right_layout)
-        # layout.setStretchFactor(left_layout, 1)
-        # layout.setStretchFactor(right_layout, 0)
-
-        # self.setLayout(layout)
-
-    # def push_button_clicked(self):
-    #     print(self.lineEdit.text())
-
-    def center(self):
-        position = self.frameGeometry()
-        center_point = QDesktopWidget().availableGeometry().center()
-        position.moveCenter(center_point)
-        self.move(position.topLeft())
-
-    def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Message', '프로그램을 종료하시겠습니까?',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
-
-    def _print_result(self):
-        if not self.post_search_window.post_list:
-            QMessageBox.information(self, 'Message', '출력할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
-        else:
-            pass
-
-    def _save_result(self):
-        if not self.post_search_window.post_list:
-            QMessageBox.information(self, 'Message', '저장할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
-        else:
-            pass
-
-    def _open_graph_window(self):
-        if not self.post_search_window.post_list:
-            QMessageBox.information(self, 'Message', '그래프를 그릴 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
-        else:
-            GraphWindow(self.post_search_window.post_list).exec_()
-
-    def _open_keyword_window(self, event):
-        pass
-
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MyWindow()
+    window = MainWindow()
     window.show()
     app.exec_()
