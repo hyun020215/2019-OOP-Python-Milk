@@ -3,6 +3,8 @@ from selenium import webdriver
 from datetime import datetime
 
 TARGET_URL = 'https://www.facebook.com/SASABamboo/'  # 세종과학예술영재학교 대나무숲 페이지 주소
+CHROME_DRIVER_PATH = 'D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe'
+# 'C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe' -> 유진's Path
 
 
 def webdriver_maker():
@@ -17,9 +19,7 @@ def webdriver_maker():
     options.add_argument("disable-gpu")
     options.add_argument("lang=ko_KR")
 
-    return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
-                            options=options)
-    # return webdriver.Chrome('C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe',options=options)
+    return webdriver.Chrome(CHROME_DRIVER_PATH, options=options)
 
 
 def timestamp_to_str(timestamp):
