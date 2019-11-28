@@ -1,9 +1,11 @@
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+
 from PyQt5.QtCore import *
-from graphs import Graph
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+
 import facebook_parser as fbps
+from graphs import Graph
 
 
 class MainWidget(QWidget):
@@ -174,25 +176,7 @@ class GraphWindow(QDialog, Graph):
         draw_bar.clicked.connect(self.show_bar_widget)
         draw_pie.clicked.connect(self.show_pie_widget)
 
-        line_detail = QVBoxLayout()
-        select_category = QGroupBox('카테고리')
-        select_category_layout = QVBoxLayout()
-        select_category_layout.addWidget(QCheckBox('안녕'))
-        select_category.setLayout(select_category_layout)
-        line_detail.addWidget(select_category)
-        self.line_widget = QGroupBox('그래프 세부사항')
-        self.line_widget.setLayout(line_detail)
-        self.line_widget.hide()
-
-        bar_detail = QVBoxLayout()
-        self.bar_widget = QGroupBox('그래프 세부사항')
-        self.bar_widget.setLayout(bar_detail)
-        self.bar_widget.hide()
-
-        pie_detail = QVBoxLayout()
-        self.pie_widget = QGroupBox('그래프 세부사항')
-        self.pie_widget.setLayout(pie_detail)
-        self.pie_widget.hide()
+        draw_line.setChecked(True)
 
         graph_type = QVBoxLayout()
         graph_type.addWidget(draw_line)
@@ -202,20 +186,46 @@ class GraphWindow(QDialog, Graph):
         select_graph_type = QGroupBox('그래프 종류')
         select_graph_type.setLayout(graph_type)
 
+        self.select_category = QGroupBox('카테고리')
+        select_category_layout = QVBoxLayout()
+        select_category_layout.addWidget(QCheckBox('안녕'))
+        self.select_category.setLayout(select_category_layout)
+
+        day = QRadioButton('1일')
+        week = QRadioButton('1주')
+        month = QRadioButton('1개월')
+
+        self.set_interval = QGroupBox('시간 간격')
+        set_interval_layout = QVBoxLayout()
+        set_interval_layout.addWidget(day)
+        set_interval_layout.addWidget(week)
+        set_interval_layout.addWidget(month)
+        self.set_interval.setLayout(set_interval_layout)
+
+        day.setChecked(True)
+
+        graph_detail = QVBoxLayout()
+        graph_detail.addWidget(self.select_category)
+        graph_detail.addWidget(self.set_interval)
+        set_graph_detail = QGroupBox('그래프 세부사항')
+        set_graph_detail.setLayout(graph_detail)
+
+        make_graph = QPushButton('그래프 생성', self)
+        make_graph.clicked.connect(self.draw_graph)
+
+        self.graph_already_exists = False
+        self.graph = None
+
         graph_setting = QVBoxLayout()
         graph_setting.addWidget(select_graph_type)
-        graph_setting.addWidget(self.line_widget)
-        graph_setting.addWidget(self.bar_widget)
-        graph_setting.addWidget(self.pie_widget)
+        graph_setting.addWidget(set_graph_detail)
         graph_setting.addStretch()
+        graph_setting.addWidget(make_graph)
 
-        graph = self.line_graph('test', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]}, 'x-axis', 'y-axis')
-
-        layout = QHBoxLayout()
-        layout.addStretch()
-        layout.addWidget(graph)
-        layout.addLayout(graph_setting)
-        self.setLayout(layout)
+        self.main_layout = QHBoxLayout()
+        self.main_layout.addLayout(graph_setting)
+        self.setLayout(self.main_layout)
+        self.main_layout.setStretchFactor(graph_setting, 0)
 
         background = QImage('images/background.png')
         palette = QPalette()
@@ -226,19 +236,32 @@ class GraphWindow(QDialog, Graph):
         self.setWindowIcon(QIcon('images/icon.png'))
 
     def show_line_widget(self):
-        self.line_widget.show()
-        self.bar_widget.hide()
-        self.pie_widget.hide()
+        self.select_category.show()
+        self.set_interval.show()
 
     def show_bar_widget(self):
-        self.line_widget.hide()
-        self.bar_widget.show()
-        self.pie_widget.hide()
+        self.select_category.show()
+        self.set_interval.hide()
 
     def show_pie_widget(self):
-        self.line_widget.hide()
-        self.bar_widget.hide()
-        self.pie_widget.show()
+        self.select_category.hide()
+        self.set_interval.hide()
+
+    def draw_graph(self):
+        if self.graph_already_exists:
+            self.main_layout.removeWidget(self.graph)
+        else:
+            self.graph_already_exists = True
+        self.graph = self.line_graph('TEst', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]}, 'x-axis', 'y-axis')
+        self.main_layout.insertWidget(0, self.graph)
+        self.resize(1000, 450)
+        self.center()
+
+    def center(self):
+        position = self.frameGeometry()
+        center_point = QDesktopWidget().availableGeometry().center()
+        position.moveCenter(center_point)
+        self.move(position.topLeft())
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message', '창을 닫으시겠습니까?',
