@@ -19,9 +19,7 @@ class WindowWithExtraFunctions(QWidget):
         self.move(position.topLeft())
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Message', '프로그램을 종료하시겠습니까?',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
+        reply = QMessageBox.question(self, 'Message', '창을 닫으시겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             event.accept()
         else:
