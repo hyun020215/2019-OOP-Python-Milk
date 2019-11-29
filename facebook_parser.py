@@ -12,6 +12,7 @@ def webdriver_maker():
     headless 브라우저(창이 안뜨는)를 위해서 설정.
     https://beomi.github.io/2017/09/28/HowToMakeWebCrawler-Headless-Chrome/
     :return: webdriver (크롬)을 생성
+    스크롤 오류 발생!
     """
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
@@ -62,65 +63,65 @@ def post_crawl(start, end):
         soup = bs4.BeautifulSoup(html, 'html.parser')  # bs4에게 부탁
         posts = soup.select('div.userContentWrapper')  # 게시물이 포함되어 있는 <div class='userContentWrapper'> 검색
         first_post_pass = True
-        print(posts)
-
-        for post in posts:
-            # 첫 포스트 제외 | 오래된 포스트일 가능성이 높음.
-            if first_post_pass is True:
-                first_post_pass = False
-                continue
-
-            j = post.select('div')
-            temp = []
-            date = timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip()))  # 날짜 추출
-
-            y = int(date[0:4])
-            m = int(date[5:7])
-            d = int(date[8:10])
-            # 시간대 걸러주기
-
-            if y<start[0]:
-                break
-            elif m<start[1]:
-                break
-            elif d<start[2]:
-                break
-
-            if y>end[0]:
-                continue
-            elif m>end[1]:
-                continue
-            elif d>end[2]:
-                continue
-
-            temp.append(date)  # 날짜 추가
-
-            temp.append(j[16].getText().strip())  # 내용 추가
-            like = 0
-            try:
-                # for i in range(0,6): # 좋아요 종류 6가지 추가
-                #     temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
-                for i in range(0, 6):
-                    x = j[26].select('._1n9k')[i].contents[0].get('aria-label')
-                    like = like + int(x[4])
-            except IndexError:  # 좋아요가 없을 때
-                pass
-            except ValueError:  # 좋아요가 없을 때
-                pass
-            temp.append(like)
-
-            comment = j[25].select('._4vn2')
-            try:
-                temp.append(int(str(comment)[-14]))
-            except IndexError: # comment 가 비어있다
-                temp.append(0)
-
-            inform.append(temp)
 
         time_filter = posts[-1].select('div')  # 시간대 걸러주기
         date = timestamp_to_str(int(time_filter[15].select('abbr')[0].get('data-utime').strip()))
         if int(date[0:4]) <= start[0] and int(date[5:7]) <= start[1] and int(date[8:10]) < start[2]:
             break
+
+    for post in posts:
+        # 첫 포스트 제외 | 오래된 포스트일 가능성이 높음.
+        if first_post_pass is True:
+            first_post_pass = False
+            continue
+
+        j = post.select('div')
+        temp = []
+        date = timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip()))  # 날짜 추출
+
+        y = int(date[0:4])
+        m = int(date[5:7])
+        d = int(date[8:10])
+        # 시간대 걸러주기
+
+        if y<start[0]:
+            break
+        elif m<start[1]:
+            break
+        elif d<start[2]:
+            break
+
+        if y > end[0]:
+            continue
+        elif m > end[1]:
+            continue
+        elif d>end[2]:
+            continue
+
+        temp.append(date)  # 날짜 추가
+
+        temp.append(j[16].getText().strip())  # 내용 추가
+        like = 0
+        try:
+            # for i in range(0,6): # 좋아요 종류 6가지 추가
+            #     temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
+            for i in range(0, 6):
+                x = j[26].select('._1n9k')[i].contents[0].get('aria-label')
+                like = like + int(x[4])
+        except IndexError:  # 좋아요가 없을 때
+            pass
+        except ValueError:  # 좋아요가 없을 때
+            pass
+        temp.append(like)
+
+        comment = j[25].select('._4vn2')
+        try:
+            temp.append(int(str(comment)[-14]))
+        except IndexError: # comment 가 비어있다
+            temp.append(0)
+
+        inform.append(temp)
+
 
     print(inform)
     ans = list()
