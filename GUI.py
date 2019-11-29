@@ -63,13 +63,13 @@ class MainWindow(QMainWindow, WindowWithExtraFunctions):
         if not self.post_search_window.post_list:
             QMessageBox.information(self, 'Message', '출력할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
         else:
-            pass
+            QMessageBox.information(self, 'Message', '미구현된 기능입니다.', QMessageBox.Ok, QMessageBox.Ok)
 
     def _save_result(self):
         if not self.post_search_window.post_list:
             QMessageBox.information(self, 'Message', '저장할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
         else:
-            pass
+            QMessageBox.information(self, 'Message', '미구현된 기능입니다.', QMessageBox.Ok, QMessageBox.Ok)
 
     def _open_graph_window(self):
         if not self.post_search_window.post_list:
@@ -77,8 +77,8 @@ class MainWindow(QMainWindow, WindowWithExtraFunctions):
         else:
             GraphWindow(self.post_search_window.post_list).exec_()
 
-    def _open_keyword_window(self, event):
-        pass
+    def _open_keyword_window(self):
+        QMessageBox.information(self, 'Message', '미구현된 기능입니다.', QMessageBox.Ok, QMessageBox.Ok)
 
 
 class MainWidget(QWidget):
