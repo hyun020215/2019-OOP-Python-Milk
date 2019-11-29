@@ -280,8 +280,16 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         self.checkbox_uncheck_alert.setObjectName('uncheck_alert')
         self.checkbox_uncheck_alert.setStyleSheet('QLabel#uncheck_alert {color: red}')
         self.checkbox_uncheck_alert.hide()
+        check_all = QPushButton('전체 선택')
+        check_all.clicked.connect(self.check_all_category)
+        uncheck_all = QPushButton('전체 해제')
+        uncheck_all.clicked.connect(self.uncheck_all_category)
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(check_all)
+        button_layout.addWidget(uncheck_all)
         select_category_layout = QVBoxLayout()
         select_category_layout.addWidget(self.checkbox_uncheck_alert)
+        select_category_layout.addLayout(button_layout)
         for category in self.categorized_posts.keys():
             if self.categorized_posts[category]:
                 checkbox = QCheckBox(category)
@@ -368,6 +376,14 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
     def set_interval_year(self):
         self.interval = slice(0, 4)
 
+    def check_all_category(self):
+        for checkbox in self.category_check:
+            checkbox.setChecked(True)
+
+    def uncheck_all_category(self):
+        for checkbox in self.category_check:
+            checkbox.setChecked(False)
+
     def draw_graph(self):
         self.progress_bar.show()
         if self.graph:
@@ -387,7 +403,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
                     for post in posts:
                         y[category][x.index(post.date[self.interval])] += 1
             if y:
-                self.graph = line_graph('시간대별 게시물 증가 추이', x, y, '날짜', '게시물 수')
+                self.graph = line_graph('날짜별 게시물 증가 추이', x, y, '날짜', '게시물 수')
                 self.checkbox_uncheck_alert.hide()
             else:
                 self.checkbox_uncheck_alert.show()
