@@ -413,7 +413,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
 
         if self.graph:
             self.main_layout.insertWidget(0, self.graph)
-            self.resize(1000, 450)
+            self.resize(1000, 600)
 
         self.progress_bar.hide()
         self.center()
