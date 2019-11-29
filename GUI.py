@@ -55,7 +55,7 @@ class MainWindow(QMainWindow, WindowWithExtraFunctions):
 
         self.statusBar()
 
-        self.resize(883, 600)
+        self.resize(900, 600)
         self.center()
         self.setWindowTitle("SASA 대나무숲 분석기")
 
@@ -182,6 +182,7 @@ class MainWidget(QWidget):
 
     @ pyqtSlot(list)
     def update_search_result_list(self, post_list: list):
+        self.result_list.setRowCount(10)
         self.post_list = post_list
         self.progress.hide()
         self.loading_message.hide()
@@ -202,6 +203,9 @@ class MainWidget(QWidget):
                 like.setTextAlignment(Qt.AlignCenter)
                 comment.setTextAlignment(Qt.AlignCenter)
                 category.setTextAlignment(Qt.AlignCenter)
+
+                if self.result_list.rowCount() < len(post_list):
+                    self.result_list.insertRow(self.result_list.rowCount())
 
                 self.result_list.setItem(index, 0, date)
                 self.result_list.setItem(index, 1, text)
@@ -272,11 +276,17 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         select_graph_type.setLayout(graph_type)
 
         self.select_category = QGroupBox('카테고리')
+        self.checkbox_uncheck_alert = QLabel('1개 이상의 주제를 선택해주세요.')
+        self.checkbox_uncheck_alert.setObjectName('uncheck_alert')
+        self.checkbox_uncheck_alert.setStyleSheet('QLabel#uncheck_alert {color: red}')
+        self.checkbox_uncheck_alert.hide()
         select_category_layout = QVBoxLayout()
+        select_category_layout.addWidget(self.checkbox_uncheck_alert)
         for category in self.categorized_posts.keys():
-            checkbox = QCheckBox(category)
-            select_category_layout.addWidget(checkbox)
-            self.category_check.append(checkbox)
+            if self.categorized_posts[category]:
+                checkbox = QCheckBox(category)
+                select_category_layout.addWidget(checkbox)
+                self.category_check.append(checkbox)
         self.select_category.setLayout(select_category_layout)
 
         day = QRadioButton('일별')
@@ -307,7 +317,6 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         make_graph = QPushButton('그래프 생성', self)
         make_graph.clicked.connect(self.draw_graph)
 
-        self.graph_already_exists = False
         self.graph = None
         self.graph_type = 'line'
 
@@ -328,6 +337,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         self.main_layout.setStretchFactor(graph_setting, 0)
 
         self.setWindowTitle("자료 시각화")
+        self.resize(150, 600)
         self.center()
 
     def show_line_widget(self):
@@ -360,10 +370,8 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
 
     def draw_graph(self):
         self.progress_bar.show()
-        if self.graph_already_exists:
+        if self.graph:
             self.main_layout.removeWidget(self.graph)
-        else:
-            self.graph_already_exists = True
 
         if self.graph_type == 'line':
             x = []
@@ -378,7 +386,11 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
                 if category in y.keys():
                     for post in posts:
                         y[category][x.index(post.date[self.interval])] += 1
-            self.graph = line_graph('시간대별 게시물 증가 추이', x, y, '날짜', '게시물 수')
+            if y:
+                self.graph = line_graph('시간대별 게시물 증가 추이', x, y, '날짜', '게시물 수')
+                self.checkbox_uncheck_alert.hide()
+            else:
+                self.checkbox_uncheck_alert.show()
         elif self.graph_type == 'bar':
             x = []
             y = {'게시물': []}
@@ -386,7 +398,11 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
                 if checkbox.isChecked():
                     x.append(checkbox.text())
                     y['게시물'].append(len(self.categorized_posts[checkbox.text()]))
-            self.graph = bar_graph('주제별 게시물 수', x, y, '주제', '게시물 수')
+            if y['게시물']:
+                self.graph = bar_graph('주제별 게시물 수', x, y, '주제', '게시물 수')
+                self.checkbox_uncheck_alert.hide()
+            else:
+                self.checkbox_uncheck_alert.show()
         else:
             ratio = {}
             for category in self.categorized_posts.keys():
@@ -394,9 +410,12 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
                 if post_num != 0:
                     ratio[category] = post_num
             self.graph = pie_graph('주제별 게시물 비율', ratio)
+
+        if self.graph:
+            self.main_layout.insertWidget(0, self.graph)
+            self.resize(1000, 450)
+
         self.progress_bar.hide()
-        self.main_layout.insertWidget(0, self.graph)
-        self.resize(1000, 450)
         self.center()
 
 
