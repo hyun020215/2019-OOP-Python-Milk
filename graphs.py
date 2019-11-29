@@ -17,7 +17,7 @@ def bar_graph(title: str, x: [int or str], y: {str: [int or float]}, x_label: st
 
     # 그래프에 값 표시
     values = list(y.items())
-    shift = 0.05 * values[0][1][0]
+    shift = 0.01 * values[0][1][0]
     for i in range(len(values)):
         label, value = values[i]
         rects = ax.bar([j+0.05*(-len(values)+1+2*i) for j in range(len(x))], value, width=0.1, label=label)
@@ -48,7 +48,7 @@ def line_graph(title: str, x: [int or float], y: {str: [int or float]}, x_label:
     ax = fig.add_subplot(111)
 
     # 그래프에 값 표시
-    shift = 0.05 * list(y.items())[0][1][0]
+    shift = 0.01 * list(y.items())[0][1][0]
     for label, value in y.items():
         ax.plot(x, value, label=label, marker='o')
         for i in range(len(value)):
