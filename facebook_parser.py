@@ -1,10 +1,9 @@
-# 한번 더 점검을 해봐야겠다
-
 import bs4
 from selenium import webdriver
 from datetime import datetime
 
 TARGET_URL = 'https://www.facebook.com/SASABamboo/'  # 세종과학예술영재학교 대나무숲 페이지 주소
+
 
 def webdriver_maker():
     """
@@ -18,9 +17,9 @@ def webdriver_maker():
     options.add_argument("disable-gpu")
     options.add_argument("lang=ko_KR")
 
-    #return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
-    #                        options=options)
-    return webdriver.Chrome('C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe',options=options)
+    return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
+                            options=options)
+    # return webdriver.Chrome('C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe',options=options)
 
 
 def timestamp_to_str(timestamp):
@@ -41,8 +40,8 @@ def post_crawl(start, end):
     """
     from posts import Post
 
-    start = list(map(int,start.split('-')))  # [2000,00,00] [년, 월, 일]
-    end = list(map(int,end.split('-')))
+    start = list(map(int, start.split('-')))  # [2000-00-00] [년, 월, 일]
+    end = list(map(int, end.split('-')))
     inform = []  # 게시글 정보를 담을 리스트
     print(start)
     print(end)
@@ -54,8 +53,8 @@ def post_crawl(start, end):
     while True:
         while driver.find_element_by_tag_name('div'):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            Divs = driver.find_element_by_tag_name('div').text
-            if 'End of Results' in Divs:  # 영어 버전에서 작동하는 코드
+            divs = driver.find_element_by_tag_name('div').text
+            if 'End of Results' in divs:  # 영어 버전에서 작동하는 코드
                 print('end')
                 break
             break
@@ -80,55 +79,54 @@ def post_crawl(start, end):
             d = int(date[8:10])
             # 시간대 걸러주기
 
-            if y<start[0] or y>end[0] :
+            if y < start[0] or y > end[0]:
                 break
-            elif m<start[1] or m>end[1]:
+            elif m < start[1] or m > end[1]:
                 break
-            elif d<start[2] or d>end[2]:
+            elif d < start[2] or d > end[2]:
                 break
 
-            temp.append(date) # 날짜 추가
+            temp.append(date)  # 날짜 추가
 
             temp.append(j[16].getText().strip())  # 내용 추가
             like = 0
             try:
                 # for i in range(0,6): # 좋아요 종류 6가지 추가
                 #     temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
-                for i in range(0,6):
+                for i in range(0, 6):
                     x = j[26].select('._1n9k')[i].contents[0].get('aria-label')
                     like = like + int(x[4])
-            except IndexError: # 좋아요가 없을 때
+            except IndexError:  # 좋아요가 없을 때
                 pass
-            except ValueError: # 좋아요가 없을 때
+            except ValueError:  # 좋아요가 없을 때
                 pass
             temp.append(like)
 
-            comment = j[25].select('._4vn2')
-            try:
-                temp.append(int(str(comment)[-14]))
-            except IndexError: # comment 가 비어있다
-                temp.append(0)
+            try:  # 댓글 미완성 ㅠㅠ
+                comment = j[27].select('._4vn1')
+            except IndexError:
+                pass
 
+            temp.append(3)
 
             inform.append(temp)
 
-        filter = posts[-1].select('div')  # 시간대 걸러주기
-        temp = []
-        date = timestamp_to_str(int(filter[15].select('abbr')[0].get('data-utime').strip()))
+        time_filter = posts[-1].select('div')  # 시간대 걸러주기
+        date = timestamp_to_str(int(time_filter[15].select('abbr')[0].get('data-utime').strip()))
         if int(date[0:4]) <= start[0] and int(date[5:7]) <= start[1] and int(date[8:10]) < start[2]:
             break
-
-
 
     print(inform)
     ans = list()
     for i in inform:
-            ans.append(Post(i[0],i[1],i[2],i[3]))
+        ans.append(Post(i[0], i[1], i[2], i[3]))
     print(ans)
-    return ans
 
     print('END')
-
     driver.quit()  # 드라이버 사용 종료. 이 코드가 없을 경우 프로세스가 남게 됨.
 
+    return ans
 
+
+if __name__ == '__main__':
+    post_crawl('2019.11.25', '2019.11.26')

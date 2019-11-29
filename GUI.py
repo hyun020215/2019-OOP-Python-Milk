@@ -1,9 +1,84 @@
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+
 from PyQt5.QtCore import *
-from graphs import Graph
+from upgrade_window import *
+
 import facebook_parser as fbps
+from graphs import *
+
+
+class MainWindow(QMainWindow, WindowWithExtraFunctions):
+    def __init__(self):
+        super().__init__()
+
+        exit_action = QAction(QIcon('images/exit.png'), '종료하기', self)
+        exit_action.setShortcut('Ctrl+Q')
+        exit_action.setStatusTip('프로그램을 종료합니다.')
+        exit_action.triggered.connect(qApp.closeAllWindows)
+
+        print_action = QAction(QIcon('images/print.png'), '출력하기', self)
+        print_action.setShortcut('Ctrl+P')
+        print_action.setStatusTip('검색 결과를 출력합니다.')
+        print_action.triggered.connect(self._print_result)
+
+        save_action = QAction(QIcon('images/save.png'), '저장하기', self)
+        save_action.setShortcut('Ctrl+S')
+        save_action.setStatusTip('검색 결과를 저장합니다.')
+        save_action.triggered.connect(self._save_result)
+
+        draw_graph = QAction(QIcon('images/graph.png'), '그래프', self)
+        draw_graph.setShortcut('Ctrl+G')
+        draw_graph.setStatusTip('검색 자료를 바탕으로 그래프를 그립니다.')
+        draw_graph.triggered.connect(self._open_graph_window)
+
+        edit_keyword = QAction(QIcon('images/edit.png'), '키워드 편집', self)
+        edit_keyword.setShortcut('Ctrl+K')
+        edit_keyword.setStatusTip('검색된 게시물을 분류하는 키워드를 편집합니다.')
+        edit_keyword.triggered.connect(self._open_keyword_window)
+
+        menubar = self.menuBar()
+        menubar.setNativeMenuBar(False)
+
+        file_menu = menubar.addMenu('파일')
+        file_menu.addAction(exit_action)
+        file_menu.addAction(print_action)
+        file_menu.addAction(save_action)
+
+        statistics_menu = menubar.addMenu('통계')
+        statistics_menu.addAction(draw_graph)
+
+        settings_menu = menubar.addMenu('설정')
+        settings_menu.addAction(edit_keyword)
+
+        self.post_search_window = MainWidget()
+        self.setCentralWidget(self.post_search_window)
+
+        self.statusBar()
+
+        self.resize(900, 600)
+        self.center()
+        self.setWindowTitle("SASA 대나무숲 분석기")
+
+    def _print_result(self):
+        if not self.post_search_window.post_list:
+            QMessageBox.information(self, 'Message', '출력할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
+        else:
+            QMessageBox.information(self, 'Message', '미구현된 기능입니다.', QMessageBox.Ok, QMessageBox.Ok)
+
+    def _save_result(self):
+        if not self.post_search_window.post_list:
+            QMessageBox.information(self, 'Message', '저장할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
+        else:
+            QMessageBox.information(self, 'Message', '미구현된 기능입니다.', QMessageBox.Ok, QMessageBox.Ok)
+
+    def _open_graph_window(self):
+        if not self.post_search_window.post_list:
+            QMessageBox.information(self, 'Message', '그래프를 그릴 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
+        else:
+            GraphWindow(self.post_search_window.post_list).exec_()
+
+    def _open_keyword_window(self):
+        QMessageBox.information(self, 'Message', '미구현된 기능입니다.', QMessageBox.Ok, QMessageBox.Ok)
 
 
 class MainWidget(QWidget):
@@ -44,8 +119,8 @@ class MainWidget(QWidget):
         self.post_crawling.finished.connect(self.update_search_result_list)
 
         sort_by = QComboBox(self)
-        sort_by.addItems(['게시 일자', '공감 수', '댓글 수'])
-        sort_by.currentIndexChanged.connect(self.set_sort_method)
+        sort_by.addItems(['게시 일자', '공감 수', '댓글 수', '주제'])
+        sort_by.currentIndexChanged.connect(self._set_sort_method)
 
         search_result_label1 = QHBoxLayout()
         search_result_label1.addWidget(QLabel('검색 결과', self))
@@ -107,6 +182,7 @@ class MainWidget(QWidget):
 
     @ pyqtSlot(list)
     def update_search_result_list(self, post_list: list):
+        self.result_list.setRowCount(10)
         self.post_list = post_list
         self.progress.hide()
         self.loading_message.hide()
@@ -128,19 +204,24 @@ class MainWidget(QWidget):
                 comment.setTextAlignment(Qt.AlignCenter)
                 category.setTextAlignment(Qt.AlignCenter)
 
+                if self.result_list.rowCount() < len(post_list):
+                    self.result_list.insertRow(self.result_list.rowCount())
+
                 self.result_list.setItem(index, 0, date)
                 self.result_list.setItem(index, 1, text)
                 self.result_list.setItem(index, 2, like)
                 self.result_list.setItem(index, 3, comment)
                 self.result_list.setItem(index, 4, category)
 
-    def set_sort_method(self, idx: int):
+    def _set_sort_method(self, idx: int):
         if idx == 0:
             self.current_sort_method = lambda post: post.date
         elif idx == 1:
             self.current_sort_method = lambda post: post.like
-        else:
+        elif idx == 2:
             self.current_sort_method = lambda post: post.comment
+        else:
+            self.current_sort_method = lambda post: post.get_category()
 
         self.update_search_result_list(self.post_list)
 
@@ -162,165 +243,200 @@ class PostCrawl(QThread):
         self.finished.emit(result)
 
 
-class GraphWindow(QDialog, Graph):
+class GraphWindow(QDialog, WindowWithExtraFunctions):
     def __init__(self, posts):
         super().__init__()
 
-        select_graph_type = QGroupBox()
+        self.posts = posts
+        self.categorized_posts = {'기숙사': [], '급식': [], '입시': [], '음악실': [], '신입생': [], '건의사항': [],
+                                  '본관': [], '청결': [], '종소리': [], '운동장': []}
+        self.category_check = []
+        for post in posts:
+            for category in self.categorized_posts.keys():
+                if category in post.get_category():
+                    self.categorized_posts[category].append(post)
+
+        # set up UI
+        draw_line = QRadioButton('시간대별 게시물 증가 추이(꺾은선 그래프)')
+        draw_bar = QRadioButton('주제별 게시물 수(막대 그래프)')
+        draw_pie = QRadioButton('주제별 게시물 비율(원 그래프)')
+
+        draw_line.clicked.connect(self.show_line_widget)
+        draw_bar.clicked.connect(self.show_bar_widget)
+        draw_pie.clicked.connect(self.show_pie_widget)
+
+        draw_line.setChecked(True)
+
+        graph_type = QVBoxLayout()
+        graph_type.addWidget(draw_line)
+        graph_type.addWidget(draw_bar)
+        graph_type.addWidget(draw_pie)
+
+        select_graph_type = QGroupBox('그래프 종류')
+        select_graph_type.setLayout(graph_type)
+
+        self.select_category = QGroupBox('카테고리')
+        self.checkbox_uncheck_alert = QLabel('1개 이상의 주제를 선택해주세요.')
+        self.checkbox_uncheck_alert.setObjectName('uncheck_alert')
+        self.checkbox_uncheck_alert.setStyleSheet('QLabel#uncheck_alert {color: red}')
+        self.checkbox_uncheck_alert.hide()
+        check_all = QPushButton('전체 선택')
+        check_all.clicked.connect(self.check_all_category)
+        uncheck_all = QPushButton('전체 해제')
+        uncheck_all.clicked.connect(self.uncheck_all_category)
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(check_all)
+        button_layout.addWidget(uncheck_all)
+        select_category_layout = QVBoxLayout()
+        select_category_layout.addWidget(self.checkbox_uncheck_alert)
+        select_category_layout.addLayout(button_layout)
+        for category in self.categorized_posts.keys():
+            if self.categorized_posts[category]:
+                checkbox = QCheckBox(category)
+                select_category_layout.addWidget(checkbox)
+                self.category_check.append(checkbox)
+        self.select_category.setLayout(select_category_layout)
+
+        day = QRadioButton('일별')
+        week = QRadioButton('월별')
+        month = QRadioButton('연별')
+
+        day.clicked.connect(self.set_interval_day)
+        week.clicked.connect(self.set_interval_month)
+        month.clicked.connect(self.set_interval_year)
+        day.setChecked(True)
+        self.interval = slice(10)
+
+        self.set_interval = QGroupBox('시간 간격')
+        set_interval_layout = QVBoxLayout()
+        set_interval_layout.addWidget(day)
+        set_interval_layout.addWidget(week)
+        set_interval_layout.addWidget(month)
+        self.set_interval.setLayout(set_interval_layout)
+
+        day.setChecked(True)
+
+        graph_detail = QVBoxLayout()
+        graph_detail.addWidget(self.select_category)
+        graph_detail.addWidget(self.set_interval)
+        set_graph_detail = QGroupBox('그래프 세부사항')
+        set_graph_detail.setLayout(graph_detail)
+
+        make_graph = QPushButton('그래프 생성', self)
+        make_graph.clicked.connect(self.draw_graph)
+
+        self.graph = None
+        self.graph_type = 'line'
+
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setRange(0, 0)
+        self.progress_bar.hide()
 
         graph_setting = QVBoxLayout()
-        graph_setting.addWidget(QLabel('그래프 종류', self))
         graph_setting.addWidget(select_graph_type)
+        graph_setting.addWidget(set_graph_detail)
+        graph_setting.addStretch()
+        graph_setting.addWidget(self.progress_bar)
+        graph_setting.addWidget(make_graph)
 
-        graph = self.line_graph('test', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]}, 'x-axis', 'y-axis')
-
-        layout = QHBoxLayout()
-        layout.addWidget(graph)
-        layout.addLayout(graph_setting)
-        self.setLayout(layout)
-
-        background = QImage('images/background.png')
-        palette = QPalette()
-        palette.setBrush(10, QBrush(background.scaled(self.size())))
-        self.setPalette(palette)
+        self.main_layout = QHBoxLayout()
+        self.main_layout.addLayout(graph_setting)
+        self.setLayout(self.main_layout)
+        self.main_layout.setStretchFactor(graph_setting, 0)
 
         self.setWindowTitle("자료 시각화")
-        self.setWindowIcon(QIcon('images/icon.png'))
-
-    def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Message', '창을 닫으시겠습니까?',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
-
-
-class MyWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-
-        exit_action = QAction(QIcon('images/exit.png'), '종료하기', self)
-        exit_action.setShortcut('Ctrl+Q')
-        exit_action.setStatusTip('프로그램을 종료합니다.')
-        exit_action.triggered.connect(qApp.closeAllWindows)
-
-        print_action = QAction(QIcon('images/print.png'), '출력하기', self)
-        print_action.setShortcut('Ctrl+P')
-        print_action.setStatusTip('검색 결과를 출력합니다.')
-        print_action.triggered.connect(self._print_result)
-
-        save_action = QAction(QIcon('images/save.png'), '저장하기', self)
-        save_action.setShortcut('Ctrl+S')
-        save_action.setStatusTip('검색 결과를 저장합니다.')
-        save_action.triggered.connect(self._save_result)
-
-        draw_graph = QAction(QIcon('images/graph.png'), '그래프', self)
-        draw_graph.setShortcut('Ctrl+G')
-        draw_graph.setStatusTip('검색 자료를 바탕으로 그래프를 그립니다.')
-        draw_graph.triggered.connect(self._open_graph_window)
-
-        edit_keyword = QAction(QIcon('images/edit.png'), '키워드 편집', self)
-        edit_keyword.setShortcut('Ctrl+K')
-        edit_keyword.setStatusTip('검색된 게시물을 분류하는 키워드를 편집합니다.')
-        edit_keyword.triggered.connect(self._open_keyword_window)
-
-        menubar = self.menuBar()
-        menubar.setNativeMenuBar(False)
-
-        file_menu = menubar.addMenu('파일')
-        file_menu.addAction(exit_action)
-        file_menu.addAction(print_action)
-        file_menu.addAction(save_action)
-
-        statistics_menu = menubar.addMenu('통계')
-        statistics_menu.addAction(draw_graph)
-
-        settings_menu = menubar.addMenu('설정')
-        settings_menu.addAction(edit_keyword)
-
-        self.post_search_window = MainWidget()
-        self.setCentralWidget(self.post_search_window)
-
-        self.statusBar()
-
-        background = QImage('images/background.png')
-        palette = QPalette()
-        palette.setBrush(10, QBrush(background.scaled(self.size())))
-        self.setPalette(palette)
-
-        self.resize(883, 600)
+        self.resize(150, 600)
         self.center()
-        self.setWindowTitle("SASA 대나무숲 분석기")
-        self.setWindowIcon(QIcon('images/icon.png'))
 
-        # self.lineEdit = QLineEdit()
-        # self.pushButton = QPushButton("차트그리기", self)
-        # self.pushButton.clicked.connect(self.push_button_clicked)
+    def show_line_widget(self):
+        self.graph_type = 'line'
+        for checkbox in self.category_check:
+            checkbox.setChecked(False)
+        self.select_category.show()
+        self.set_interval.show()
 
-        # self.fig = plt.Figure()
-        # self.canvas = FigureCanvas(self.fig)
+    def show_bar_widget(self):
+        self.graph_type = 'bar'
+        for checkbox in self.category_check:
+            checkbox.setChecked(False)
+        self.select_category.show()
+        self.set_interval.hide()
 
-        # left_layout = QVBoxLayout()
-        # left_layout.addWidget(self.canvas)
-        #
-        # # Right Layout
-        # right_layout = QVBoxLayout()
-        # right_layout.addWidget(self.lineEdit)
-        # right_layout.addWidget(self.pushButton)
-        # right_layout.addStretch(1)
-        #
-        # layout = QHBoxLayout()
-        # layout.addLayout(left_layout)
-        # layout.addLayout(right_layout)
-        # layout.setStretchFactor(left_layout, 1)
-        # layout.setStretchFactor(right_layout, 0)
+    def show_pie_widget(self):
+        self.graph_type = 'pie'
+        self.select_category.hide()
+        self.set_interval.hide()
 
-        # self.setLayout(layout)
+    def set_interval_day(self):
+        self.interval = slice(10)
 
-    # def push_button_clicked(self):
-    #     print(self.lineEdit.text())
+    def set_interval_month(self):
+        self.interval = slice(0, 7)
 
-    def center(self):
-        position = self.frameGeometry()
-        center_point = QDesktopWidget().availableGeometry().center()
-        position.moveCenter(center_point)
-        self.move(position.topLeft())
+    def set_interval_year(self):
+        self.interval = slice(0, 4)
 
-    def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Message', '프로그램을 종료하시겠습니까?',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+    def check_all_category(self):
+        for checkbox in self.category_check:
+            checkbox.setChecked(True)
 
-        if reply == QMessageBox.Yes:
-            event.accept()
+    def uncheck_all_category(self):
+        for checkbox in self.category_check:
+            checkbox.setChecked(False)
+
+    def draw_graph(self):
+        self.progress_bar.show()
+        if self.graph:
+            self.main_layout.removeWidget(self.graph)
+
+        if self.graph_type == 'line':
+            x = []
+            y = {}
+            for post in sorted(self.posts, key=lambda contents: contents.date[self.interval]):
+                if post.date[self.interval] not in x:
+                    x.append(post.date[self.interval])
+            for checkbox in self.category_check:
+                if checkbox.isChecked():
+                    y[checkbox.text()] = [0] * len(x)
+            for category, posts in self.categorized_posts.items():
+                if category in y.keys():
+                    for post in posts:
+                        y[category][x.index(post.date[self.interval])] += 1
+            if y:
+                self.graph = line_graph('날짜별 게시물 증가 추이', x, y, '날짜', '게시물 수')
+                self.checkbox_uncheck_alert.hide()
+            else:
+                self.checkbox_uncheck_alert.show()
+        elif self.graph_type == 'bar':
+            x = []
+            y = {'게시물': []}
+            for checkbox in self.category_check:
+                if checkbox.isChecked():
+                    x.append(checkbox.text())
+                    y['게시물'].append(len(self.categorized_posts[checkbox.text()]))
+            if y['게시물']:
+                self.graph = bar_graph('주제별 게시물 수', x, y, '주제', '게시물 수')
+                self.checkbox_uncheck_alert.hide()
+            else:
+                self.checkbox_uncheck_alert.show()
         else:
-            event.ignore()
+            ratio = {}
+            for category in self.categorized_posts.keys():
+                post_num = len(self.categorized_posts[category])
+                if post_num != 0:
+                    ratio[category] = post_num
+            self.graph = pie_graph('주제별 게시물 비율', ratio)
 
-    def _print_result(self):
-        if not self.post_search_window.post_list:
-            QMessageBox.information(self, 'Message', '출력할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
-        else:
-            pass
+        if self.graph:
+            self.main_layout.insertWidget(0, self.graph)
+            self.resize(1000, 600)
 
-    def _save_result(self):
-        if not self.post_search_window.post_list:
-            QMessageBox.information(self, 'Message', '저장할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
-        else:
-            pass
-
-    def _open_graph_window(self):
-        if not self.post_search_window.post_list:
-            QMessageBox.information(self, 'Message', '그래프를 그릴 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
-        else:
-            GraphWindow(self.post_search_window.post_list).exec_()
-
-    def _open_keyword_window(self, event):
-        pass
+        self.progress_bar.hide()
+        self.center()
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MyWindow()
+    window = MainWindow()
     window.show()
     app.exec_()
