@@ -1,9 +1,11 @@
 import bs4
 from selenium import webdriver
 from datetime import datetime
+from posts import Post
 
 TARGET_URL = 'https://www.facebook.com/SASABamboo/'  # 세종과학예술영재학교 대나무숲 페이지 주소
-
+# CHROME_DRIVER_PATH = 'D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe'
+CHROME_DRIVER_PATH = 'C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe'
 
 def webdriver_maker():
     """
@@ -17,9 +19,7 @@ def webdriver_maker():
     options.add_argument("disable-gpu")
     options.add_argument("lang=ko_KR")
 
-    return webdriver.Chrome('D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe',
-                            options=options)
-    # return webdriver.Chrome('C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe',options=options)
+    return webdriver.Chrome(CHROME_DRIVER_PATH, options = options)
 
 
 def timestamp_to_str(timestamp):
@@ -33,12 +33,11 @@ def timestamp_to_str(timestamp):
 
 def post_crawl(start, end):
     """
-    start 와 end 의 날짜 형식은 2000.00.00 이다.
-    :param start: 크롤링을 시작하는 시간(start 에서부터)
-    :param end: 크롤링을 끝내는 시간(end 까지)
+    start 와 end 의 날짜 형식은 2000-00-00 이다.
+    :param start: 크롤링을 시작하는 시간(ex:2019년 11월 25일부터)
+    :param end: 크롤링을 끝내는 시간(ex:2019년 11월 26일까지)
     :return:
     """
-    from posts import Post
 
     start = list(map(int, start.split('-')))  # [2000-00-00] [년, 월, 일]
     end = list(map(int, end.split('-')))
@@ -63,6 +62,7 @@ def post_crawl(start, end):
         soup = bs4.BeautifulSoup(html, 'html.parser')  # bs4에게 부탁
         posts = soup.select('div.userContentWrapper')  # 게시물이 포함되어 있는 <div class='userContentWrapper'> 검색
         first_post_pass = True
+        print(posts)
 
         for post in posts:
             # 첫 포스트 제외 | 오래된 포스트일 가능성이 높음.
@@ -79,12 +79,19 @@ def post_crawl(start, end):
             d = int(date[8:10])
             # 시간대 걸러주기
 
-            if y < start[0] or y > end[0]:
+            if y<start[0]:
                 break
-            elif m < start[1] or m > end[1]:
+            elif m<start[1]:
                 break
-            elif d < start[2] or d > end[2]:
+            elif d<start[2]:
                 break
+
+            if y>end[0]:
+                continue
+            elif m>end[1]:
+                continue
+            elif d>end[2]:
+                continue
 
             temp.append(date)  # 날짜 추가
 
@@ -102,12 +109,11 @@ def post_crawl(start, end):
                 pass
             temp.append(like)
 
-            try:  # 댓글 미완성 ㅠㅠ
-                comment = j[27].select('._4vn1')
-            except IndexError:
-                pass
-
-            temp.append(3)
+            comment = j[25].select('._4vn2')
+            try:
+                temp.append(int(str(comment)[-14]))
+            except IndexError: # comment 가 비어있다
+                temp.append(0)
 
             inform.append(temp)
 
@@ -129,4 +135,4 @@ def post_crawl(start, end):
 
 
 if __name__ == '__main__':
-    post_crawl('2019.11.25', '2019.11.26')
+    post_crawl('2019-11-25', '2019-11-26')
