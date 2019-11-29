@@ -1,3 +1,6 @@
+# 10월 25일부터 11월 25일까지를 출력했는데 안됨
+# 11월 01일부터 11월 25일까지를 출력했을 때 무한루프
+
 import bs4
 from selenium import webdriver
 from datetime import datetime
@@ -12,7 +15,6 @@ def webdriver_maker():
     headless 브라우저(창이 안뜨는)를 위해서 설정.
     https://beomi.github.io/2017/09/28/HowToMakeWebCrawler-Headless-Chrome/
     :return: webdriver (크롬)을 생성
-    스크롤 오류 발생!
     """
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
@@ -66,7 +68,9 @@ def post_crawl(start, end):
 
         time_filter = posts[-1].select('div')  # 시간대 걸러주기
         date = timestamp_to_str(int(time_filter[15].select('abbr')[0].get('data-utime').strip()))
-        if int(date[0:4]) <= start[0] and int(date[5:7]) <= start[1] and int(date[8:10]) < start[2]:
+        print(int(date[0:4]+date[5:7]+date[8:10]))
+        print(start[0]*10000+start[1]*100+start[2])
+        if int(date[0:4]+date[5:7]+date[8:10]) < start[0]*10000+start[1]*100+start[2] :
             break
 
     for post in posts:
