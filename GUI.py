@@ -119,7 +119,7 @@ class MainWidget(QWidget):
         self.post_crawling.finished.connect(self.update_search_result_list)
 
         sort_by = QComboBox(self)
-        sort_by.addItems(['게시 일자', '공감 수', '댓글 수'])
+        sort_by.addItems(['게시 일자', '공감 수', '댓글 수', '주제'])
         sort_by.currentIndexChanged.connect(self._set_sort_method)
 
         search_result_label1 = QHBoxLayout()
@@ -214,8 +214,10 @@ class MainWidget(QWidget):
             self.current_sort_method = lambda post: post.date
         elif idx == 1:
             self.current_sort_method = lambda post: post.like
-        else:
+        elif idx == 2:
             self.current_sort_method = lambda post: post.comment
+        else:
+            self.current_sort_method = lambda post: post.get_category()
 
         self.update_search_result_list(self.post_list)
 
@@ -244,6 +246,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         self.posts = posts
         self.categorized_posts = {'기숙사': [], '급식': [], '입시': [], '음악실': [], '신입생': [], '건의사항': [],
                                   '본관': [], '청결': [], '종소리': [], '운동장': []}
+        self.category_check = []
         for post in posts:
             for category in self.categorized_posts.keys():
                 if category in post.get_category():
@@ -270,17 +273,19 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
 
         self.select_category = QGroupBox('카테고리')
         select_category_layout = QVBoxLayout()
-        select_category_layout.addWidget(QCheckBox('안녕'))
-        select_category_layout.addWidget(QCheckBox('반가워'))
+        for category in self.categorized_posts.keys():
+            checkbox = QCheckBox(category)
+            select_category_layout.addWidget(checkbox)
+            self.category_check.append(checkbox)
         self.select_category.setLayout(select_category_layout)
 
-        day = QRadioButton('1일')
-        week = QRadioButton('1주')
-        month = QRadioButton('1개월')
+        day = QRadioButton('일별')
+        week = QRadioButton('월별')
+        month = QRadioButton('연별')
 
         day.clicked.connect(self.set_interval_day)
-        week.clicked.connect(self.set_interval_week)
-        month.clicked.connect(self.set_interval_month)
+        week.clicked.connect(self.set_interval_month)
+        month.clicked.connect(self.set_interval_year)
         day.setChecked(True)
         self.interval = slice(10)
 
@@ -306,10 +311,15 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         self.graph = None
         self.graph_type = 'line'
 
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setRange(0, 0)
+        self.progress_bar.hide()
+
         graph_setting = QVBoxLayout()
         graph_setting.addWidget(select_graph_type)
         graph_setting.addWidget(set_graph_detail)
         graph_setting.addStretch()
+        graph_setting.addWidget(self.progress_bar)
         graph_setting.addWidget(make_graph)
 
         self.main_layout = QHBoxLayout()
@@ -322,11 +332,15 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
 
     def show_line_widget(self):
         self.graph_type = 'line'
+        for checkbox in self.category_check:
+            checkbox.setChecked(False)
         self.select_category.show()
         self.set_interval.show()
 
     def show_bar_widget(self):
         self.graph_type = 'bar'
+        for checkbox in self.category_check:
+            checkbox.setChecked(False)
         self.select_category.show()
         self.set_interval.hide()
 
@@ -338,13 +352,14 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
     def set_interval_day(self):
         self.interval = slice(10)
 
-    def set_interval_week(self):
+    def set_interval_month(self):
         self.interval = slice(0, 7)
 
-    def set_interval_month(self):
+    def set_interval_year(self):
         self.interval = slice(0, 4)
 
     def draw_graph(self):
+        self.progress_bar.show()
         if self.graph_already_exists:
             self.main_layout.removeWidget(self.graph)
         else:
@@ -353,20 +368,33 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         if self.graph_type == 'line':
             x = []
             y = {}
-            for post in sorted(self.posts, key=lambda post: post.date[self.interval]):
+            for post in sorted(self.posts, key=lambda contents: contents.date[self.interval]):
                 if post.date[self.interval] not in x:
                     x.append(post.date[self.interval])
-            for category in self.categorized_posts.keys():
-                y[category] = [0] * len(x)
+            for checkbox in self.category_check:
+                if checkbox.isChecked():
+                    y[checkbox.text()] = [0] * len(x)
             for category, posts in self.categorized_posts.items():
-                for post in posts:
-                    y[category][x.index(post.date[self.interval])] += 1
+                if category in y.keys():
+                    for post in posts:
+                        y[category][x.index(post.date[self.interval])] += 1
             self.graph = line_graph('시간대별 게시물 증가 추이', x, y, '날짜', '게시물 수')
         elif self.graph_type == 'bar':
-            self.graph = bar_graph('주제별 게시물 수', ['x1', 'x2', 'x3'], {'y1': [1, 2, 3], 'y2': [2, 3, 4]},
-                                   'x-axis', 'y-axis')
+            x = []
+            y = {'게시물': []}
+            for checkbox in self.category_check:
+                if checkbox.isChecked():
+                    x.append(checkbox.text())
+                    y['게시물'].append(len(self.categorized_posts[checkbox.text()]))
+            self.graph = bar_graph('주제별 게시물 수', x, y, '주제', '게시물 수')
         else:
-            self.graph = pie_graph('주제별 게시물 비율', {'y1': 3, 'y2': 4, 'y3': 5})
+            ratio = {}
+            for category in self.categorized_posts.keys():
+                post_num = len(self.categorized_posts[category])
+                if post_num != 0:
+                    ratio[category] = post_num
+            self.graph = pie_graph('주제별 게시물 비율', ratio)
+        self.progress_bar.hide()
         self.main_layout.insertWidget(0, self.graph)
         self.resize(1000, 450)
         self.center()
