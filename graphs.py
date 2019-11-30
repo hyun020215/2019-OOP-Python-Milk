@@ -1,4 +1,3 @@
-# 그래프를 그리기 위한 모듈
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
