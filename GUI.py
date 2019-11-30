@@ -227,7 +227,7 @@ class MainWidget(QWidget):
         self.update_search_result_list(self.post_list)
 
     def _post_double_clicked(self, _, column):
-        if column == 1 and self.result_list.currentItem():
+        if column in [1, 4] and self.result_list.currentItem():
             self.post_content.setText(self.result_list.currentItem().text())
 
 
@@ -277,17 +277,21 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         select_graph_type.setLayout(graph_type)
 
         self.select_category = QGroupBox('카테고리')
+
         self.checkbox_uncheck_alert = QLabel('1개 이상의 주제를 선택해주세요.')
         self.checkbox_uncheck_alert.setObjectName('uncheck_alert')
         self.checkbox_uncheck_alert.setStyleSheet('QLabel#uncheck_alert {color: red}')
         self.checkbox_uncheck_alert.hide()
+
         check_all = QPushButton('전체 선택')
         check_all.clicked.connect(self.check_all_category)
         uncheck_all = QPushButton('전체 해제')
         uncheck_all.clicked.connect(self.uncheck_all_category)
+
         button_layout = QHBoxLayout()
         button_layout.addWidget(check_all)
         button_layout.addWidget(uncheck_all)
+
         select_category_layout = QVBoxLayout()
         select_category_layout.addWidget(self.checkbox_uncheck_alert)
         select_category_layout.addLayout(button_layout)
@@ -296,6 +300,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
                 checkbox = QCheckBox(category)
                 select_category_layout.addWidget(checkbox)
                 self.category_check.append(checkbox)
+
         self.select_category.setLayout(select_category_layout)
 
         self.set_interval_label = QLabel('시간 간격')
