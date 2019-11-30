@@ -1,15 +1,12 @@
-# 10월 25일부터 11월 25일까지를 출력했는데 안됨
-# 11월 01일부터 11월 25일까지를 출력했을 때 무한루프
-
 import bs4
 from selenium import webdriver
 from datetime import datetime
 from posts import Post
+import socket # 인터넷 연결 여부 확인 https://www.todaymart.com/578
 
 TARGET_URL = 'https://www.facebook.com/SASABamboo/'  # 세종과학예술영재학교 대나무숲 페이지 주소
 # CHROME_DRIVER_PATH = 'D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe'
 CHROME_DRIVER_PATH = 'C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe'
-
 
 def webdriver_maker():
     """
@@ -23,7 +20,7 @@ def webdriver_maker():
     options.add_argument("disable-gpu")
     options.add_argument("lang=ko_KR")
 
-    return webdriver.Chrome(CHROME_DRIVER_PATH, options=options)
+    return webdriver.Chrome(CHROME_DRIVER_PATH, options = options)
 
 
 def timestamp_to_str(timestamp):
@@ -35,6 +32,17 @@ def timestamp_to_str(timestamp):
     return datetime.fromtimestamp(timestamp).strftime("%Y.%m.%d %H:%M:%S")
 
 
+def check_internet():
+    """
+    인터넷 연결 여부를 확인하는 함수
+    :return: 인터넷 연결시 1을 리턴
+    """
+    ipaddress = socket.gethostbyname(socket.gethostname())
+    if ipaddress == "127.0.0.1":
+        return 0
+    else:
+        return 1
+
 def post_crawl(start, end):
     """
     start 와 end 의 날짜 형식은 2000-00-00 이다.
@@ -42,6 +50,8 @@ def post_crawl(start, end):
     :param end: 크롤링을 끝내는 시간(ex:2019년 11월 26일까지)
     :return:
     """
+    if not check_internet():
+        return "no internet"
 
     start = list(map(int, start.split('-')))  # [2000-00-00] [년, 월, 일]
     end = list(map(int, end.split('-')))
@@ -69,9 +79,9 @@ def post_crawl(start, end):
 
         time_filter = posts[-1].select('div')  # 시간대 걸러주기
         date = timestamp_to_str(int(time_filter[15].select('abbr')[0].get('data-utime').strip()))
-        print(int(date[0:4] + date[5:7] + date[8:10]))
-        print(start[0] * 10000 + start[1] * 100 + start[2])
-        if int(date[0:4] + date[5:7] + date[8:10]) < start[0] * 10000 + start[1] * 100 + start[2]:
+        print(int(date[0:4]+date[5:7]+date[8:10]))
+        print(start[0]*10000+start[1]*100+start[2])
+        if int(date[0:4]+date[5:7]+date[8:10]) < start[0]*10000+start[1]*100+start[2]:
             break
 
     for post in posts:
@@ -84,27 +94,13 @@ def post_crawl(start, end):
         temp = []
         date = timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip()))  # 날짜 추출
 
-        y = int(date[0:4])
-        m = int(date[5:7])
-        d = int(date[8:10])
+        day = int(date[0:4]+date[5:7]+date[8:10])
         # 시간대 걸러주기
 
-        if y < start[0]:
-            break
-        elif m < start[1]:
-            break
-        elif d < start[2]:
-            break
-
-        if y > end[0]:
-            continue
-        elif m > end[1]:
-            continue
-        elif d > end[2]:
+        if day > end[0]*10000+end[1]*100+end[2]: # 시간 걸러주기
             continue
 
         temp.append(date)  # 날짜 추가
-
         temp.append(j[16].getText().strip())  # 내용 추가
         like = 0
         try:
@@ -112,7 +108,7 @@ def post_crawl(start, end):
             #     temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
             for i in range(0, 6):
                 x = j[26].select('._1n9k')[i].contents[0].get('aria-label')
-                like = like + int(x[4])
+                like = like + int(x.split()[1])
         except IndexError:  # 좋아요가 없을 때
             pass
         except ValueError:  # 좋아요가 없을 때
@@ -120,12 +116,12 @@ def post_crawl(start, end):
         temp.append(like)
 
         comment = j[25].select('._4vn2')
-        try:
-            temp.append(int(str(comment)[-14]))
-        except IndexError:  # comment 가 비어있다
+        if comment == []:
             temp.append(0)
-
+        else:
+            temp.append(int(str(comment[0]).split()[-1][0:-12]))
         inform.append(temp)
+
 
     print(inform)
     ans = list()
@@ -140,4 +136,4 @@ def post_crawl(start, end):
 
 
 if __name__ == '__main__':
-    post_crawl('2019-11-25', '2019-11-26')
+    post_crawl('2019-10-28', '2019-11-28')
