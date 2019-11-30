@@ -596,10 +596,10 @@ class KeywordEditWindow(QDialog, WindowWithExtraFunctions):
             category_exists = False
             category_with_keywords = {}
             for i in range(self.category_table.rowCount()):
-                if self.category_table.item(i, 0) and self.category_table.item(i, 1):
+                category = self.category_table.item(i, 0).text()
+                keywords = self.category_table.item(i, 1).text()
+                if category and keywords:
                     category_exists = True
-                    category = self.category_table.item(i, 0).text()
-                    keywords = self.category_table.item(i, 1).text()
                     category_with_keywords[category] = keywords.split(',')
 
             if category_exists:
