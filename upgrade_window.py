@@ -8,7 +8,7 @@ class WindowWithExtraFunctions(QWidget):
 
         background = QImage('images/background.png')
         palette = QPalette()
-        palette.setBrush(10, QBrush(background.scaled(self.size())))
+        palette.setBrush(10, QBrush(background.scaled(self.size())))  # window OS에서 작동함
         self.setPalette(palette)
         self.setWindowIcon(QIcon('images/icon.png'))
 
