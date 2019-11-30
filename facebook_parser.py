@@ -71,13 +71,11 @@ def post_crawl(start, end):
             break
 
     for post in posts:
-        print("let's talk about posts")
         # 첫 포스트 제외 | 오래된 포스트일 가능성이 높음.
         if first_post_pass is True:
             first_post_pass = False
             continue
 
-        print(post)
         j = post.select('div')
         temp = []
         date = timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip()))  # 날짜 추출
@@ -86,11 +84,9 @@ def post_crawl(start, end):
         # 시간대 걸러주기
 
         if day > end[0]*10000+end[1]*100+end[2]: # 시간 걸러주기
-            print("continue")
             continue
 
         temp.append(date)  # 날짜 추가
-        print("date added")
         temp.append(j[16].getText().strip())  # 내용 추가
         like = 0
         try:
@@ -98,7 +94,7 @@ def post_crawl(start, end):
             #     temp.append(j[26].select('._1n9k')[i].contents[0].get('aria-label'))
             for i in range(0, 6):
                 x = j[26].select('._1n9k')[i].contents[0].get('aria-label')
-                like = like + int(x[4])
+                like = like + int(x.split()[1])
         except IndexError:  # 좋아요가 없을 때
             pass
         except ValueError:  # 좋아요가 없을 때
@@ -106,11 +102,10 @@ def post_crawl(start, end):
         temp.append(like)
 
         comment = j[25].select('._4vn2')
-        try:
-            temp.append(int(str(comment)[-14]))
-        except IndexError: # comment 가 비어있다
+        if comment == []:
             temp.append(0)
-
+        else:
+            temp.append(int(str(comment[0]).split()[-1][0:-12]))
         inform.append(temp)
 
 
@@ -127,4 +122,4 @@ def post_crawl(start, end):
 
 
 if __name__ == '__main__':
-    post_crawl('2019-11-25', '2019-11-26')
+    post_crawl('2019-11-28', '2019-11-28')
