@@ -481,7 +481,7 @@ class KeywordEditWindow(QDialog, WindowWithExtraFunctions):
         self.category_table.setHorizontalHeaderLabels(['카테고리', '키워드'])
         self.category_table.setColumnWidth(0, 100)
         self.category_table.setColumnWidth(1, 350)
-        self.category_table.setFixedSize(500, 400)
+        self.category_table.setMinimumSize(500, 400)
 
         self.categories = QComboBox()
         delete_button = QPushButton('카테고리 삭제')
