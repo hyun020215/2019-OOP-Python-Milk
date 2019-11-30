@@ -10,6 +10,7 @@ TARGET_URL = 'https://www.facebook.com/SASABamboo/'  # 세종과학예술영재�
 # CHROME_DRIVER_PATH = 'D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe'
 CHROME_DRIVER_PATH = 'C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe'
 
+
 def webdriver_maker():
     """
     headless 브라우저(창이 안뜨는)를 위해서 설정.
@@ -22,7 +23,7 @@ def webdriver_maker():
     options.add_argument("disable-gpu")
     options.add_argument("lang=ko_KR")
 
-    return webdriver.Chrome(CHROME_DRIVER_PATH, options = options)
+    return webdriver.Chrome(CHROME_DRIVER_PATH, options=options)
 
 
 def timestamp_to_str(timestamp):
@@ -68,9 +69,9 @@ def post_crawl(start, end):
 
         time_filter = posts[-1].select('div')  # 시간대 걸러주기
         date = timestamp_to_str(int(time_filter[15].select('abbr')[0].get('data-utime').strip()))
-        print(int(date[0:4]+date[5:7]+date[8:10]))
-        print(start[0]*10000+start[1]*100+start[2])
-        if int(date[0:4]+date[5:7]+date[8:10]) < start[0]*10000+start[1]*100+start[2] :
+        print(int(date[0:4] + date[5:7] + date[8:10]))
+        print(start[0] * 10000 + start[1] * 100 + start[2])
+        if int(date[0:4] + date[5:7] + date[8:10]) < start[0] * 10000 + start[1] * 100 + start[2]:
             break
 
     for post in posts:
@@ -88,18 +89,18 @@ def post_crawl(start, end):
         d = int(date[8:10])
         # 시간대 걸러주기
 
-        if y<start[0]:
+        if y < start[0]:
             break
-        elif m<start[1]:
+        elif m < start[1]:
             break
-        elif d<start[2]:
+        elif d < start[2]:
             break
 
         if y > end[0]:
             continue
         elif m > end[1]:
             continue
-        elif d>end[2]:
+        elif d > end[2]:
             continue
 
         temp.append(date)  # 날짜 추가
@@ -121,11 +122,10 @@ def post_crawl(start, end):
         comment = j[25].select('._4vn2')
         try:
             temp.append(int(str(comment)[-14]))
-        except IndexError: # comment 가 비어있다
+        except IndexError:  # comment 가 비어있다
             temp.append(0)
 
         inform.append(temp)
-
 
     print(inform)
     ans = list()
