@@ -224,7 +224,8 @@ class MainWidget(QWidget):
         else:
             self.current_sort_method = lambda post: post.get_category()
 
-        self.update_search_result_list(self.post_list)
+        if self.post_list:
+            self.update_search_result_list(self.post_list)
 
     def _post_double_clicked(self, _, column):
         if column in [1, 4] and self.result_list.currentItem():
