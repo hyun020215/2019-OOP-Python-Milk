@@ -1,14 +1,13 @@
 # 10월 25일부터 11월 25일까지를 출력했는데 안됨
 # 11월 01일부터 11월 25일까지를 출력했을 때 무한루프
-
+import os
 import bs4
 from selenium import webdriver
 from datetime import datetime
 from posts import *
 
 TARGET_URL = 'https://www.facebook.com/SASABamboo/'  # 세종과학예술영재학교 대나무숲 페이지 주소
-CHROME_DRIVER_PATH = 'D:/우현 데이타/고등학교/세종과학예술학교/공부/2019 과목/2학기/객체지향프로그래밍/2019-OOP-Python-Milk/chromedriver.exe'
-# CHROME_DRIVER_PATH = 'C:/Users/USER/PycharmProjects/2019-OOP-Python-Milk/chromedriver.exe'
+CHROME_DRIVER_PATH = os.getcwd() + '/chromedriver.exe'
 
 
 def webdriver_maker():
