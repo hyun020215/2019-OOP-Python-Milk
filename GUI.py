@@ -61,24 +61,25 @@ class MainWindow(QMainWindow, WindowWithExtraFunctions):
 
     def _print_result(self):
         if not self.post_search_window.post_list:
-            QMessageBox.information(self, 'Message', '출력할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
+            QMessageBox.information(self, 'Message', '출력할 자료가 없습니다.', QMessageBox.Ok)
         else:
-            QMessageBox.information(self, 'Message', '미구현된 기능입니다.', QMessageBox.Ok, QMessageBox.Ok)
+            QMessageBox.information(self, 'Message', '미구현된 기능입니다.', QMessageBox.Ok)
 
     def _save_result(self):
         if not self.post_search_window.post_list:
-            QMessageBox.information(self, 'Message', '저장할 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
+            QMessageBox.information(self, 'Message', '저장할 자료가 없습니다.', QMessageBox.Ok)
         else:
-            QMessageBox.information(self, 'Message', '미구현된 기능입니다.', QMessageBox.Ok, QMessageBox.Ok)
+            QMessageBox.information(self, 'Message', '미구현된 기능입니다.', QMessageBox.Ok)
 
     def _open_graph_window(self):
         if not self.post_search_window.post_list:
-            QMessageBox.information(self, 'Message', '그래프를 그릴 자료가 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
+            QMessageBox.information(self, 'Message', '그래프를 그릴 자료가 없습니다.', QMessageBox.Ok)
         else:
             GraphWindow(self.post_search_window.post_list).exec_()
 
-    def _open_keyword_window(self):
-        QMessageBox.information(self, 'Message', '미구현된 기능입니다.', QMessageBox.Ok, QMessageBox.Ok)
+    @staticmethod
+    def _open_keyword_window():
+        KeywordEditWindow().exec_()
 
 
 class MainWidget(QWidget):
@@ -180,7 +181,7 @@ class MainWidget(QWidget):
             self.loading_message.show()
             self.post_crawling.start()
 
-    @ pyqtSlot(list)
+    @pyqtSlot(list)
     def update_search_result_list(self, post_list: list):
         self.result_list.setRowCount(10)
         self.post_list = post_list
@@ -231,7 +232,6 @@ class MainWidget(QWidget):
 
 
 class PostCrawl(QThread):
-
     finished = pyqtSignal(list)
 
     def __init__(self, current_window: MainWidget):
@@ -248,9 +248,14 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         super().__init__()
 
         self.posts = posts
-        self.categorized_posts = {'기숙사': [], '급식': [], '입시': [], '음악실': [], '신입생': [], '건의사항': [],
-                                  '본관': [], '청결': [], '종소리': [], '운동장': []}
         self.category_check = []
+
+        file = open('category_keywords.pickle', 'rb')
+        self.categorized_posts = pickle.load(file)
+        for key in self.categorized_posts.keys():
+            self.categorized_posts[key] = []
+        file.close()
+
         for post in posts:
             for category in self.categorized_posts.keys():
                 if category in post.get_category():
@@ -452,6 +457,157 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
 
         self.progress_bar.hide()
         self.center()
+
+
+class KeywordEditWindow(QDialog, WindowWithExtraFunctions):
+    def __init__(self):
+        super().__init__()
+
+        precaution_text = '''*셀을 더블클릭하면 내용을 수정할 수 있습니다.
+*키워드는 쉼표(,)로 구분되며,
+ 쉼표 양 옆에는 띄어쓰기가 없어야 합니다.
+*빈 카테고리는 자동으로 삭제됩니다.
+*창을 닫기 전에 반드시 저장을 눌러주세요.'''
+        precaution = QLabel(precaution_text, self)
+        precaution.setObjectName('precaution')
+        precaution.setStyleSheet('QLabel#precaution {color: red}')
+
+        file = open('category_keywords.pickle', 'rb')
+        category_with_keywords = pickle.load(file)
+        file.close()
+
+        self.category_table = QTableWidget(1, 2)
+        self.category_table.setHorizontalHeaderLabels(['카테고리', '키워드'])
+        self.category_table.setColumnWidth(0, 100)
+        self.category_table.setColumnWidth(1, 350)
+        self.category_table.setFixedSize(500, 400)
+
+        self.categories = QComboBox()
+        delete_button = QPushButton('카테고리 삭제')
+        delete_button.clicked.connect(self.delete_category)
+
+        delete_layout = QHBoxLayout()
+        delete_layout.addWidget(self.categories)
+        delete_layout.addWidget(delete_button)
+        delete_layout.addStretch()
+
+        self.new_category_name = QLineEdit()
+        add_button = QPushButton('카테고리 추가')
+        add_button.clicked.connect(self.add_category)
+
+        add_layout = QHBoxLayout()
+        add_layout.addWidget(self.new_category_name)
+        add_layout.addWidget(add_button)
+        add_layout.addStretch()
+
+        for category, keywords in category_with_keywords.items():
+            self.categories.addItem(category)
+
+            category = QTableWidgetItem(category)
+            keywords = QTableWidgetItem(','.join(keywords))
+
+            category.setTextAlignment(Qt.AlignCenter)
+
+            row_cnt = self.category_table.rowCount()
+            if row_cnt < len(category_with_keywords):
+                self.category_table.insertRow(row_cnt)
+
+            self.category_table.setItem(row_cnt - 1, 0, category)
+            self.category_table.setItem(row_cnt - 1, 1, keywords)
+
+        reset_button = QPushButton('초기화 및 종료')
+        reset_button.clicked.connect(self.reset)
+
+        save_button = QPushButton('저장')
+        save_button.clicked.connect(self.save)
+
+        reset_save_layout = QHBoxLayout()
+        reset_save_layout.addWidget(save_button)
+        reset_save_layout.addStretch()
+        reset_save_layout.addWidget(reset_button)
+
+        edit_layout = QVBoxLayout()
+        edit_layout.addLayout(add_layout)
+        edit_layout.addLayout(delete_layout)
+        edit_layout.addLayout(reset_save_layout)
+
+        edit = QGroupBox('편집')
+        edit.setLayout(edit_layout)
+
+        right_side = QVBoxLayout()
+        right_side.addWidget(precaution)
+        right_side.addWidget(edit)
+
+        main_layout = QHBoxLayout()
+        main_layout.addWidget(self.category_table)
+        main_layout.addStretch()
+        main_layout.addLayout(right_side)
+
+        self.setLayout(main_layout)
+        self.setWindowTitle('키워드 편집')
+        self.resize(800, 400)
+        self.center()
+
+    def delete_category(self):
+        idx = self.categories.currentIndex()
+        reply = QMessageBox.question(self, 'Message', '이 카테고리를 삭제하시겠습니까?',
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.category_table.removeRow(idx)
+            self.categories.removeItem(idx)
+            QMessageBox.information(self, 'Message', '삭제되었습니다.', QMessageBox.Ok)
+
+    def add_category(self):
+        new_category_name = self.new_category_name.text()
+        if new_category_name:
+            self.categories.addItem(new_category_name)
+
+            new_category_name = QTableWidgetItem(new_category_name)
+            new_category_name.setTextAlignment(Qt.AlignCenter)
+            row_cnt = self.category_table.rowCount()
+            self.category_table.insertRow(row_cnt)
+            self.category_table.setItem(row_cnt, 0, new_category_name)
+
+    def reset(self):
+        reply = QMessageBox.question(self, 'Message', '초기화하시겠습니까?\n(초기화된 값이 자동으로 저장됩니다.)',
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            category_with_keywords = {
+                '기숙사': ['기숙사', '사감', '정독', '소학', '요양', '벌점', '자습', '냉장', '점호', '폰', '스탠딩'],
+                '급식': ['급식', '영양사', '조리사', '메뉴', '점심', '잔반', '배식'],
+                '입시': ['입시', '대학', '면접', '논술', '원서'],
+                '음악실': ['음악실', '노래방', '악기', '피아노', '드럼', '바이올린'],
+                '신입생': ['신입생', '예비', '입학'],
+                '건의사항': ['대나무숲', '페이지', '대숲', '건의사항', '신문고', '규정', '폰'],
+                '본관': ['본관', '도서관', '공강', '성적', '미술실', '레이저', '홈룸', '수업', '체육관'],
+                '청결': ['쓰레기', '청소', '냄새'],
+                '종소리': ['종소리', '벨소리', '기상송', '방송부'],
+                '운동장': ['운동장', '축구']
+            }
+            file = open('category_keywords.pickle', 'wb')
+            pickle.dump(category_with_keywords, file)
+            file.close()
+            self.close()
+
+    def save(self):
+        reply = QMessageBox.question(self, 'Message', '저장하시겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        if reply == QMessageBox.Yes:
+            category_exists = False
+            category_with_keywords = {}
+            for i in range(self.category_table.rowCount()):
+                if self.category_table.item(i, 0) and self.category_table.item(i, 1):
+                    category_exists = True
+                    category = self.category_table.item(i, 0).text()
+                    keywords = self.category_table.item(i, 1).text()
+                    category_with_keywords[category] = keywords.split(',')
+
+            if category_exists:
+                file = open('category_keywords.pickle', 'wb')
+                pickle.dump(category_with_keywords, file)
+                file.close()
+                QMessageBox.information(self, 'Message', '저장되었습니다.', QMessageBox.Ok)
+            else:
+                QMessageBox.information(self, 'Message', '1개 이상의 카테고리를 설정해주세요.', QMessageBox.Ok)
 
 
 if __name__ == "__main__":
