@@ -258,7 +258,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
                     self.categorized_posts[category].append(post)
 
         # set up UI
-        draw_line = QRadioButton('시간대별 게시물 증가 추이(꺾은선 그래프)')
+        draw_line = QRadioButton('날짜별 게시물 증가 추이(꺾은선 그래프)')
         draw_bar = QRadioButton('주제별 게시물 수(막대 그래프)')
         draw_pie = QRadioButton('주제별 게시물 비율(원 그래프)')
 

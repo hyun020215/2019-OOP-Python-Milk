@@ -39,7 +39,7 @@ def post_crawl(start, end):
     :param end: 크롤링을 끝내는 시간(end 까지)
     :return:
     """
-    # return [Post('2019.11.11', '빼빼로데이', 5, 3), Post('2019.11.27', '입시 급식', 7, 1)]
+    return [Post('2019.11.11', '빼빼로데이', 5, 3), Post('2019.11.27', '입시 급식', 7, 1)]
 
     start = list(map(int, start.split('-')))  # [2000-00-00] [년, 월, 일]
     end = list(map(int, end.split('-')))
