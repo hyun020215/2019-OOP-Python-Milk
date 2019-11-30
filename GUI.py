@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtCore import *
 from upgrade_window import *
 
-import facebook_parser as fbps
+from facebook_parser import *
 from graphs import *
 
 
@@ -226,7 +226,7 @@ class MainWidget(QWidget):
         self.update_search_result_list(self.post_list)
 
     def _post_double_clicked(self, _, column):
-        if column == 1 and self.result_list.currentItem():
+        if column in [1, 4] and self.result_list.currentItem():
             self.post_content.setText(self.result_list.currentItem().text())
 
 
@@ -239,7 +239,7 @@ class PostCrawl(QThread):
         self.window = current_window
 
     def run(self) -> None:
-        result = fbps.post_crawl(self.window.period_start.text(), self.window.period_end.text())
+        result = post_crawl(self.window.period_start.text(), self.window.period_end.text())
         self.finished.emit(result)
 
 
@@ -257,7 +257,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
                     self.categorized_posts[category].append(post)
 
         # set up UI
-        draw_line = QRadioButton('시간대별 게시물 증가 추이(꺾은선 그래프)')
+        draw_line = QRadioButton('날짜별 게시물 증가 추이(꺾은선 그래프)')
         draw_bar = QRadioButton('주제별 게시물 수(막대 그래프)')
         draw_pie = QRadioButton('주제별 게시물 비율(원 그래프)')
 
@@ -276,17 +276,21 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         select_graph_type.setLayout(graph_type)
 
         self.select_category = QGroupBox('카테고리')
+
         self.checkbox_uncheck_alert = QLabel('1개 이상의 주제를 선택해주세요.')
         self.checkbox_uncheck_alert.setObjectName('uncheck_alert')
         self.checkbox_uncheck_alert.setStyleSheet('QLabel#uncheck_alert {color: red}')
         self.checkbox_uncheck_alert.hide()
+
         check_all = QPushButton('전체 선택')
         check_all.clicked.connect(self.check_all_category)
         uncheck_all = QPushButton('전체 해제')
         uncheck_all.clicked.connect(self.uncheck_all_category)
+
         button_layout = QHBoxLayout()
         button_layout.addWidget(check_all)
         button_layout.addWidget(uncheck_all)
+
         select_category_layout = QVBoxLayout()
         select_category_layout.addWidget(self.checkbox_uncheck_alert)
         select_category_layout.addLayout(button_layout)
@@ -295,30 +299,23 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
                 checkbox = QCheckBox(category)
                 select_category_layout.addWidget(checkbox)
                 self.category_check.append(checkbox)
+
         self.select_category.setLayout(select_category_layout)
 
-        day = QRadioButton('일별')
-        week = QRadioButton('월별')
-        month = QRadioButton('연별')
-
-        day.clicked.connect(self.set_interval_day)
-        week.clicked.connect(self.set_interval_month)
-        month.clicked.connect(self.set_interval_year)
-        day.setChecked(True)
+        self.set_interval_label = QLabel('시간 간격')
+        self.set_interval = QComboBox(self)
+        self.set_interval.addItems(['일별', '주별', '월별', '연도별'])
+        self.set_interval.currentIndexChanged.connect(self._set_interval)
         self.interval = slice(10)
 
-        self.set_interval = QGroupBox('시간 간격')
-        set_interval_layout = QVBoxLayout()
-        set_interval_layout.addWidget(day)
-        set_interval_layout.addWidget(week)
-        set_interval_layout.addWidget(month)
-        self.set_interval.setLayout(set_interval_layout)
-
-        day.setChecked(True)
+        set_interval_layout = QHBoxLayout()
+        set_interval_layout.addWidget(self.set_interval_label)
+        set_interval_layout.addWidget(self.set_interval)
 
         graph_detail = QVBoxLayout()
         graph_detail.addWidget(self.select_category)
-        graph_detail.addWidget(self.set_interval)
+        graph_detail.addLayout(set_interval_layout)
+
         set_graph_detail = QGroupBox('그래프 세부사항')
         set_graph_detail.setLayout(graph_detail)
 
@@ -353,6 +350,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         for checkbox in self.category_check:
             checkbox.setChecked(False)
         self.select_category.show()
+        self.set_interval_label.show()
         self.set_interval.show()
 
     def show_bar_widget(self):
@@ -360,21 +358,24 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         for checkbox in self.category_check:
             checkbox.setChecked(False)
         self.select_category.show()
+        self.set_interval_label.hide()
         self.set_interval.hide()
 
     def show_pie_widget(self):
         self.graph_type = 'pie'
         self.select_category.hide()
+        self.set_interval_label.hide()
         self.set_interval.hide()
 
-    def set_interval_day(self):
-        self.interval = slice(10)
-
-    def set_interval_month(self):
-        self.interval = slice(0, 7)
-
-    def set_interval_year(self):
-        self.interval = slice(0, 4)
+    def _set_interval(self, idx: int):
+        if idx == 0:
+            self.interval = slice(10)
+        elif idx == 1:
+            self.interval = 'week'
+        elif idx == 2:
+            self.interval = slice(0, 7)
+        else:
+            self.interval = slice(0, 4)
 
     def check_all_category(self):
         for checkbox in self.category_check:
@@ -392,18 +393,36 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
         if self.graph_type == 'line':
             x = []
             y = {}
-            for post in sorted(self.posts, key=lambda contents: contents.date[self.interval]):
-                if post.date[self.interval] not in x:
-                    x.append(post.date[self.interval])
-            for checkbox in self.category_check:
-                if checkbox.isChecked():
-                    y[checkbox.text()] = [0] * len(x)
-            for category, posts in self.categorized_posts.items():
-                if category in y.keys():
-                    for post in posts:
-                        y[category][x.index(post.date[self.interval])] += 1
+
+            if self.interval == 'week':
+                for post in sorted(self.posts, key=lambda contents: contents.date):
+                    year, month, day = map(int, post.date[:10].split('.'))
+                    week = datetime(year, month, day).strftime('%Y.%U')
+                    if week not in x:
+                        x.append(week)
+                for checkbox in self.category_check:
+                    if checkbox.isChecked():
+                        y[checkbox.text()] = [0] * len(x)
+                for category, posts in self.categorized_posts.items():
+                    if category in y.keys():
+                        for post in posts:
+                            year, month, day = map(int, post.date[:10].split('.'))
+                            week = datetime(year, month, day).strftime('%Y.%U')
+                            y[category][x.index(week)] += 1
+            else:
+                for post in sorted(self.posts, key=lambda contents: contents.date[self.interval]):
+                    if post.date[self.interval] not in x:
+                        x.append(post.date[self.interval])
+                for checkbox in self.category_check:
+                    if checkbox.isChecked():
+                        y[checkbox.text()] = [0] * len(x)
+                for category, posts in self.categorized_posts.items():
+                    if category in y.keys():
+                        for post in posts:
+                            y[category][x.index(post.date[self.interval])] += 1
+
             if y:
-                self.graph = line_graph('날짜별 게시물 증가 추이', x, y, '날짜', '게시물 수')
+                self.graph = line_graph('날짜별 게시물 증가 추이', x, y, '게시 일자', '게시물 수')
                 self.checkbox_uncheck_alert.hide()
             else:
                 self.checkbox_uncheck_alert.show()
