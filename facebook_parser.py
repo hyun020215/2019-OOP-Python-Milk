@@ -1,6 +1,3 @@
-# 10월 25일부터 11월 25일까지를 출력했는데 안됨
-# 11월 01일부터 11월 25일까지를 출력했을 때 무한루프
-
 import bs4
 from selenium import webdriver
 from datetime import datetime
@@ -70,40 +67,30 @@ def post_crawl(start, end):
         date = timestamp_to_str(int(time_filter[15].select('abbr')[0].get('data-utime').strip()))
         print(int(date[0:4]+date[5:7]+date[8:10]))
         print(start[0]*10000+start[1]*100+start[2])
-        if int(date[0:4]+date[5:7]+date[8:10]) < start[0]*10000+start[1]*100+start[2] :
+        if int(date[0:4]+date[5:7]+date[8:10]) < start[0]*10000+start[1]*100+start[2]:
             break
 
     for post in posts:
+        print("let's talk about posts")
         # 첫 포스트 제외 | 오래된 포스트일 가능성이 높음.
         if first_post_pass is True:
             first_post_pass = False
             continue
 
+        print(post)
         j = post.select('div')
         temp = []
         date = timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip()))  # 날짜 추출
 
-        y = int(date[0:4])
-        m = int(date[5:7])
-        d = int(date[8:10])
+        day = int(date[0:4]+date[5:7]+date[8:10])
         # 시간대 걸러주기
 
-        if y<start[0]:
-            break
-        elif m<start[1]:
-            break
-        elif d<start[2]:
-            break
-
-        if y > end[0]:
-            continue
-        elif m > end[1]:
-            continue
-        elif d>end[2]:
+        if day > end[0]*10000+end[1]*100+end[2]: # 시간 걸러주기
+            print("continue")
             continue
 
         temp.append(date)  # 날짜 추가
-
+        print("date added")
         temp.append(j[16].getText().strip())  # 내용 추가
         like = 0
         try:
