@@ -1,10 +1,9 @@
 import sys
-from datetime import datetime
 
 from PyQt5.QtCore import *
 from upgrade_window import *
 
-import facebook_parser as fbps
+from facebook_parser import *
 from graphs import *
 
 
@@ -240,7 +239,7 @@ class PostCrawl(QThread):
         self.window = current_window
 
     def run(self) -> None:
-        result = fbps.post_crawl(self.window.period_start.text(), self.window.period_end.text())
+        result = post_crawl(self.window.period_start.text(), self.window.period_end.text())
         self.finished.emit(result)
 
 
