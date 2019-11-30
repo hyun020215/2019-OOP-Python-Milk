@@ -32,8 +32,3 @@ class Post:
     # 게시글의 주제 가져오기
     def get_category(self):
         return self.__category
-
-
-if __name__ == '__main__':
-    post = Post('2019.11.12', '입시도 끝났는데 급식 먹기 싫어요 폰도 안 내면 안 돼요?')
-    print(post.get_category())
