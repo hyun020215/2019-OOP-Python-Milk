@@ -44,6 +44,7 @@ def check_internet():
     else:
         return 1
 
+
 def post_crawl(start, end):
     """
     start 와 end 의 날짜 형식은 2000-00-00 이다.
@@ -53,13 +54,13 @@ def post_crawl(start, end):
     """
     if not check_internet():
         return ["q"]
-    
+
     start = list(map(int, start.split('-')))  # [2000-00-00] [년, 월, 일]
     end = list(map(int, end.split('-')))
     inform = []  # 게시글 정보를 담을 리스트
     print(start)
     print(end)
-    
+
     driver = webdriver_maker()
     driver.get(TARGET_URL)
 
@@ -96,11 +97,11 @@ def post_crawl(start, end):
         temp = []
         date = timestamp_to_str(int(j[15].select('abbr')[0].get('data-utime').strip()))  # 날짜 추출
 
-        day = int(date[0:4]+date[5:7]+date[8:10])
+        day = int(date[0:4] + date[5:7] + date[8:10])
         # 시간대 걸러주기
 
-        if day > end[0]*10000+end[1]*100+end[2]: # 시간 걸러주기	
-            continue       
+        if day > end[0] * 10000 + end[1] * 100 + end[2] or day < start[0] * 10000 + start[1] * 100 + start[2]:
+            continue
 
         temp.append(date)  # 날짜 추가
 
