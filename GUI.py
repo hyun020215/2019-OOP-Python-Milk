@@ -133,6 +133,14 @@ class MainWidget(QWidget):
         self.no_result.setObjectName('no_result')
         self.no_result.setStyleSheet('QLabel#no_result {color: red}')
         self.no_result.hide()
+        self.no_internet = QLabel('인터넷 연결이 없습니다.', self)
+        self.no_internet.setObjectName('no_internet')
+        self.no_internet.setStyleSheet('QLabel#no_internet {color: blue}')
+        self.no_internet.hide()
+        self.no_connection = QLabel('인터넷이 끊겼습니다.', self)
+        self.no_connection.setObjectName('no_connection')
+        self.no_connection.setStyleSheet('QLabel#no_connection {color: blue}')
+        self.no_connection.hide()
         self.progress = QProgressBar(self)
         self.progress.setRange(0, 0)
         self.progress.hide()
@@ -188,9 +196,15 @@ class MainWidget(QWidget):
         self.progress.hide()
         self.loading_message.hide()
         self.no_result.hide()
+        self.no_internet.hide()
+        self.no_connection.hide()
         self.result_list.clearContents()
         if not post_list:
             self.no_result.show()
+        elif post_list == ['q']:
+            self.no_internet.show()
+        elif post_list == ['p']:
+            self.no_connection.show() 
         else:
             for index, post in enumerate(sorted(post_list, key=self.current_sort_method, reverse=True)):
                 date = QTableWidgetItem(post.date)
