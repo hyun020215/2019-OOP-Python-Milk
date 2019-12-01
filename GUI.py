@@ -588,7 +588,7 @@ class KeywordEditWindow(QDialog, WindowWithExtraFunctions):
             self.category_table.setItem(row_cnt, 0, new_category_name)
 
     def reset(self):
-        reply = QMessageBox.question(self, 'Message', '초기화하시겠습니까?\n(초기화된 값이 자동으로 저장됩니다.)',
+        reply = QMessageBox.question(self, 'Message', '초기화하시겠습니까?\n(초기화된 값은 자동으로 저장됩니다.)',
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             category_with_keywords = {

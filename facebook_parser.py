@@ -1,5 +1,3 @@
-# 10월 25일부터 11월 25일까지를 출력했는데 안됨
-# 11월 01일부터 11월 25일까지를 출력했을 때 무한루프
 import os
 import bs4
 from selenium import webdriver
@@ -36,9 +34,12 @@ def timestamp_to_str(timestamp):
 
 
 def check_internet():
-    """인터넷연결여부를확인하는함수:return: 인터넷연결시1을리턴"""
-    ipaddress = socket.gethostbyname(socket.gethostname())
-    if ipaddress == "127.0.0.1":
+    """
+    인터넷 연결 여부를 확인하는 함수
+    :return: 인터넷 연결 시 1을 리턴
+    """
+    ip_address = socket.gethostbyname(socket.gethostname())
+    if ip_address == "127.0.0.1":
         return 0
     else:
         return 1
@@ -118,7 +119,7 @@ def post_crawl(start, end):
         temp.append(like)
 
         comment = j[25].select('._4vn2')
-        if comment == []:
+        if not comment:
             temp.append(0)
         else:
             temp.append(int(str(comment[0]).split()[-1][0:-12]))
