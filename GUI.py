@@ -187,6 +187,8 @@ class MainWidget(QWidget):
         else:
             self.period_alert.hide()
             self.no_result.hide()
+            self.no_internet.hide()
+            self.no_connection.hide()
             self.progress.show()
             self.loading_message.show()
             self.post_crawling.start()
@@ -203,16 +205,10 @@ class MainWidget(QWidget):
         self.result_list.clearContents()
         if not post_list:
             self.no_result.show()
-            self.no_connection.hide()
-            self.no_internet.hide()
         elif post_list == ['q']:
             self.no_internet.show()
-            self.no_connection.hide()
-            self.no_result.hide()
         elif post_list == ['p']:
             self.no_connection.show()
-            self.no_result.hide()
-            self.no_internet.hide()
         else:
             for index, post in enumerate(sorted(post_list, key=self.current_sort_method, reverse=True)):
                 date = QTableWidgetItem(post.date)
