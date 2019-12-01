@@ -151,6 +151,8 @@ class MainWidget(QWidget):
         search_result_label2.addWidget(self.progress)
         search_result_label2.addWidget(self.loading_message)
         search_result_label2.addWidget(self.no_result)
+        search_result_label2.addWidget(self.no_internet)
+        search_result_label2.addWidget(self.no_connection)
         search_result_label2.addStretch()
 
         self.post_list = []
