@@ -1,7 +1,7 @@
 import os
 import bs4
 from selenium import webdriver
-from datetime import datetime
+import datetime
 from posts import *
 import socket
 
@@ -30,7 +30,7 @@ def timestamp_to_str(timestamp):
     :param timestamp: timestamp
     :return: 2000.00.00 00:00:00
     """
-    return datetime.fromtimestamp(timestamp).strftime("%Y.%m.%d %H:%M:%S")
+    return datetime.datetime.fromtimestamp(timestamp).strftime("%Y.%m.%d %H:%M:%S")
 
 
 def check_internet():

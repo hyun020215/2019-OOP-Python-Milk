@@ -77,7 +77,7 @@ class MainWindow(QMainWindow, WindowWithExtraFunctions):
         else:
             GraphWindow(self.post_search_window.post_list).exec_()
 
-    @staticmethod
+    @ staticmethod
     def _open_keyword_window():
         KeywordEditWindow().exec_()
 
@@ -87,8 +87,13 @@ class MainWidget(QWidget):
         super().__init__()
 
         # set up UI
+        today_ = datetime.datetime.now()
+        last_ = today_ - datetime.timedelta(days=7)
+
         self.period_start = QDateEdit(self)
+        self.period_start.setDate(QDate(last_.year, last_.month, last_.day))
         self.period_end = QDateEdit(self)
+        self.period_end.setDate(QDate(today_.year, today_.month, today_.day))
         search_button = QPushButton('검색', self)
         search_button.clicked.connect(self.period_check)
 
@@ -218,7 +223,6 @@ class MainWidget(QWidget):
                 category = QTableWidgetItem(', '.join(post.get_category()))
 
                 date.setTextAlignment(Qt.AlignCenter)
-                text.setTextAlignment(Qt.AlignCenter)
                 like.setTextAlignment(Qt.AlignCenter)
                 comment.setTextAlignment(Qt.AlignCenter)
                 category.setTextAlignment(Qt.AlignCenter)
@@ -421,7 +425,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
             if self.interval == 'week':
                 for post in sorted(self.posts, key=lambda contents: contents.date):
                     year, month, day = map(int, post.date[:10].split('.'))
-                    week = datetime(year, month, day).strftime('%Y.%U')
+                    week = datetime.datetime(year, month, day).strftime('%Y.%U')
                     if week not in x:
                         x.append(week)
                 for checkbox in self.category_check:
@@ -431,7 +435,7 @@ class GraphWindow(QDialog, WindowWithExtraFunctions):
                     if category in y.keys():
                         for post in posts:
                             year, month, day = map(int, post.date[:10].split('.'))
-                            week = datetime(year, month, day).strftime('%Y.%U')
+                            week = datetime.datetime(year, month, day).strftime('%Y.%U')
                             y[category][x.index(week)] += 1
             else:
                 for post in sorted(self.posts, key=lambda contents: contents.date[self.interval]):
