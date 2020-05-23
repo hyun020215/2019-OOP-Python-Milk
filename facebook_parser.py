@@ -105,7 +105,7 @@ def post_crawl(start, end):
 
         temp.append(date)  # 날짜 추가
 
-        temp.append(j[16].getText().strip())  # 내용 추가
+        temp.append(j[17].getText().strip())  # 내용 추가
         like = 0
         try:
             # for i in range(0,6): # 좋아요 종류 6가지 추가
@@ -140,4 +140,4 @@ def post_crawl(start, end):
 
 
 if __name__ == '__main__':
-    post_crawl('2019-11-25', '2019-11-26')
+    post_crawl('2020-05-20', '2020-05-23')
